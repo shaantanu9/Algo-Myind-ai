@@ -1,0 +1,46 @@
+{
+  "algorithmName": "shortest-palindrome",
+  "examples": [
+    {
+      "input": "aacecaaa",
+      "output": "aaacecaaa",
+      "explanation": "Prepending 'a' makes the string a palindrome."
+    }
+  ],
+  "animationStates": [
+    {
+      "step": 1,
+      "title": "Reverse the String",
+      "description": "Create a reversed version of the input string",
+      "data": {
+        "original": "aacecaaa",
+        "reversed": "aaacecaa",
+        "currentIndex": 0
+      }
+    },
+    {
+      "step": 2,
+      "title": "Check Prefix Match",
+      "description": "Check if prefix matches suffix of reversed string",
+      "data": {
+        "original": "aacecaaa",
+        "reversed": "aaacecaa",
+        "currentIndex": 1,
+        "s_slice": "a",
+        "reversed_slice": "a",
+        "match": true
+      }
+    },
+    {
+      "step": 3,
+      "title": "Construct Result",
+      "description": "Build the shortest palindrome",
+      "data": {
+        "original": "aacecaaa",
+        "reversed": "aaacecaa",
+        "result": "aaacecaaa",
+        "match": true
+      }
+    }
+  ]
+}

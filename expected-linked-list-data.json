@@ -1,0 +1,194 @@
+{
+  "algorithmName": "linked-list-partition",
+  "problemId": 86,
+  "title": "Partition List",
+  "description": "Given the head of a linked list and a value x, rearrange the list so that all nodes with values less than x come before nodes with values greater than or equal to x.",
+  "difficulty": "Medium",
+  "category": "Linked List",
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(1)",
+  "examples": [
+    {
+      "input": "head = [1,4,3,2,5,2], x = 3",
+      "output": "[1,2,2,4,3,5]",
+      "explanation": "Nodes less than 3 are moved before nodes greater than or equal to 3"
+    }
+  ],
+  "animationStates": [
+    {
+      "step": 1,
+      "title": "Initialize Pointers",
+      "description": "Create dummy nodes and set up traversal pointers",
+      "data": {
+        "lessHead": {
+          "value": 0,
+          "next": null
+        },
+        "greaterHead": {
+          "value": 0,
+          "next": null
+        },
+        "less": {
+          "value": 0,
+          "next": null
+        },
+        "greater": {
+          "value": 0,
+          "next": null
+        },
+        "partitionValue": 3
+      }
+    },
+    {
+      "step": 2,
+      "title": "Traverse List",
+      "description": "Iterate through each node and partition based on value",
+      "data": {
+        "currentNode": {
+          "value": 1,
+          "next": {
+            "value": 4,
+            "next": {
+              "value": 3,
+              "next": {
+                "value": 2,
+                "next": {
+                  "value": 5,
+                  "next": null
+                }
+              }
+            }
+          }
+        },
+        "partitionValue": 3,
+        "lessList": [
+          {
+            "value": 1
+          },
+          {
+            "value": 2
+          }
+        ],
+        "greaterList": [
+          {
+            "value": 4
+          },
+          {
+            "value": 3
+          },
+          {
+            "value": 5
+          }
+        ],
+        "currentIndex": 0
+      }
+    },
+    {
+      "step": 3,
+      "title": "Build Less-Than List",
+      "description": "Connect nodes with values less than partition value",
+      "data": {
+        "less": {
+          "value": 1,
+          "next": {
+            "value": 2,
+            "next": null
+          }
+        },
+        "lessList": [
+          {
+            "value": 1
+          },
+          {
+            "value": 2
+          }
+        ],
+        "partitionValue": 3
+      }
+    },
+    {
+      "step": 4,
+      "title": "Build Greater-Than List",
+      "description": "Connect nodes with values greater than or equal to partition value",
+      "data": {
+        "greater": {
+          "value": 4,
+          "next": {
+            "value": 3,
+            "next": {
+              "value": 5,
+              "next": null
+            }
+          }
+        },
+        "greaterList": [
+          {
+            "value": 4
+          },
+          {
+            "value": 3
+          },
+          {
+            "value": 5
+          }
+        ],
+        "partitionValue": 3
+      }
+    },
+    {
+      "step": 5,
+      "title": "Merge Lists",
+      "description": "Connect the less-than list to the greater-than list",
+      "data": {
+        "finalList": [
+          1,
+          2,
+          4,
+          3,
+          5
+        ],
+        "less": {
+          "value": 1,
+          "next": {
+            "value": 2,
+            "next": {
+              "value": 4,
+              "next": {
+                "value": 3,
+                "next": {
+                  "value": 5,
+                  "next": null
+                }
+              }
+            }
+          }
+        },
+        "partitionValue": 3
+      }
+    }
+  ],
+  "animation": {
+    "interactiveData": {
+      "algorithmType": "Linked List Partition",
+      "dataStructure": "Linked List",
+      "keyOperations": [
+        "Node traversal",
+        "Pointer updates",
+        "List concatenation"
+      ],
+      "visualizationHints": "Show nodes being moved to two separate lists, then combined."
+    }
+  },
+  "metadata": {
+    "tags": [
+      "Linked List",
+      "Partition",
+      "Two Pointers",
+      "Data Structure"
+    ],
+    "acceptanceRate": "60.2%",
+    "frequency": 75
+  },
+  "estimatedTime": "20 min",
+  "popularity": 78
+}

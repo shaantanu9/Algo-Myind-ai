@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Zap, Brain, Share2, Play, Clock, Users, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { LocalStorageManager } from "@/lib/local-storage-manager"
 
 const FEATURED_ALGORITHMS = [
   {
@@ -96,8 +97,158 @@ export function AlgorithmDiscovery() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedDifficulty, setSelectedDifficulty] = useState("All")
+  const [algorithms, setAlgorithms] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const filteredAlgorithms = FEATURED_ALGORITHMS.filter((algo) => {
+  // Load algorithms from localStorage on component mount
+  useEffect(() => {
+    const loadAlgorithms = () => {
+      try {
+        console.log('🔄 Loading algorithms for discovery page...')
+
+        // Load default algorithms
+        const defaultAlgorithms = [
+          {
+            id: "two-sum",
+            title: "Two Sum",
+            description: "Find two numbers in an array that add up to a target sum",
+            difficulty: "Easy",
+            category: "Array",
+            timeComplexity: "O(n)",
+            spaceComplexity: "O(n)",
+            popularity: 95,
+            realWorldUse: "E-commerce recommendation systems",
+            animationType: "Hash Table Visualization",
+            estimatedTime: "15 min",
+            problemId: 1
+          },
+          {
+            id: "binary-search",
+            title: "Binary Search",
+            description: "Efficiently search for a target value in a sorted array",
+            difficulty: "Easy",
+            category: "Search",
+            timeComplexity: "O(log n)",
+            spaceComplexity: "O(1)",
+            popularity: 88,
+            realWorldUse: "Database indexing, phone book lookup",
+            animationType: "Divide & Conquer Animation",
+            estimatedTime: "12 min",
+            problemId: 704
+          },
+          {
+            id: "merge-sort",
+            title: "Merge Sort",
+            description: "Divide and conquer sorting algorithm with guaranteed O(n log n) performance",
+            difficulty: "Medium",
+            category: "Sorting",
+            timeComplexity: "O(n log n)",
+            spaceComplexity: "O(n)",
+            popularity: 82,
+            realWorldUse: "Large dataset sorting, external sorting",
+            animationType: "Recursive Tree Visualization",
+            estimatedTime: "25 min",
+            problemId: 912
+          },
+          {
+            id: "breadth-first-search",
+            title: "Breadth-First Search (BFS)",
+            description: "Explore graph nodes level by level to find shortest paths",
+            difficulty: "Medium",
+            category: "Graph",
+            timeComplexity: "O(V + E)",
+            spaceComplexity: "O(V)",
+            popularity: 79,
+            realWorldUse: "Social networks, GPS navigation",
+            animationType: "3D Graph Traversal",
+            estimatedTime: "30 min",
+            problemId: 102
+          },
+          {
+            id: "dynamic-programming-fibonacci",
+            title: "Dynamic Programming: Fibonacci",
+            description: "Optimize recursive solutions using memoization and tabulation",
+            difficulty: "Medium",
+            category: "Dynamic Programming",
+            timeComplexity: "O(n)",
+            spaceComplexity: "O(n)",
+            popularity: 75,
+            realWorldUse: "Financial modeling, optimization problems",
+            animationType: "Memoization Table Animation",
+            estimatedTime: "20 min",
+            problemId: 509
+          },
+          {
+            id: "quick-sort",
+            title: "Quick Sort",
+            description: "Fast in-place sorting using pivot partitioning",
+            difficulty: "Medium",
+            category: "Sorting",
+            timeComplexity: "O(n log n)",
+            spaceComplexity: "O(log n)",
+            popularity: 71,
+            realWorldUse: "System sorting, data processing pipelines",
+            animationType: "Partition Animation",
+            estimatedTime: "22 min",
+            problemId: 912
+          }
+        ]
+
+        // Load algorithms from localStorage
+        const localStorageAlgorithms = LocalStorageManager.loadAllAlgorithms()
+        console.log(`📦 Found ${localStorageAlgorithms.length} algorithms in localStorage`)
+
+        // Convert localStorage algorithms to discovery format
+        const formattedLocalAlgorithms = localStorageAlgorithms.map(algo => ({
+          id: algo.id,
+          title: algo.title,
+          description: algo.description || 'Interactive algorithm visualization',
+          difficulty: algo.difficulty,
+          category: algo.category,
+          timeComplexity: algo.timeComplexity,
+          spaceComplexity: algo.spaceComplexity,
+          popularity: algo.popularity || 75,
+          realWorldUse: algo.realWorldApplications?.[0]?.description || 'Various algorithmic applications',
+          animationType: 'Interactive Visualization',
+          estimatedTime: algo.estimatedTime || '20 min',
+          problemId: algo.problemId
+        }))
+
+        // Combine and deduplicate
+        const allAlgorithms = [...defaultAlgorithms]
+        formattedLocalAlgorithms.forEach(localAlgo => {
+          if (!allAlgorithms.some(defaultAlgo => defaultAlgo.problemId === localAlgo.problemId)) {
+            allAlgorithms.push(localAlgo)
+          }
+        })
+
+        console.log(`📋 Total algorithms loaded: ${allAlgorithms.length} (${defaultAlgorithms.length} default + ${formattedLocalAlgorithms.length} localStorage)`)
+        setAlgorithms(allAlgorithms)
+        setLoading(false)
+      } catch (error) {
+        console.error('Failed to load algorithms:', error)
+        setLoading(false)
+      }
+    }
+
+    loadAlgorithms()
+  }, [refreshKey])
+
+  // Function to refresh algorithms (can be called externally)
+  const refreshAlgorithms = () => {
+    console.log('🔄 Manual refresh triggered')
+    setRefreshKey(prev => prev + 1)
+  }
+
+  // Expose refresh function to window for external calls
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).refreshAlgorithmDiscovery = refreshAlgorithms
+    }
+  }, [])
+
+  const filteredAlgorithms = algorithms.filter((algo) => {
     const matchesSearch =
       algo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       algo.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -141,6 +292,16 @@ export function AlgorithmDiscovery() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 pr-4 py-6 text-lg rounded-xl border-2 focus:border-secondary transition-colors"
           />
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <Link href="/upload-js">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Brain className="h-5 w-5 mr-2" />
+              Upload Your Algorithm
+              <span className="ml-2 text-sm opacity-90">AI-Powered Analysis</span>
+            </Button>
+          </Link>
         </div>
 
         <div className="flex flex-wrap justify-center gap-8 mb-12 text-sm text-muted-foreground">
@@ -194,8 +355,15 @@ export function AlgorithmDiscovery() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAlgorithms.map((algorithm, index) => (
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🔄</div>
+          <h3 className="text-xl font-semibold mb-2">Loading Algorithms...</h3>
+          <p className="text-muted-foreground">Fetching algorithm data from localStorage</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAlgorithms.map((algorithm, index) => (
           <Card
             key={algorithm.id}
             className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in-scale border-2 hover:border-secondary/20"
@@ -251,8 +419,9 @@ export function AlgorithmDiscovery() {
           </Card>
         ))}
       </div>
+      )}
 
-      {filteredAlgorithms.length === 0 && (
+      {!loading && filteredAlgorithms.length === 0 && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🔍</div>
           <h3 className="text-xl font-semibold mb-2">No algorithms found</h3>

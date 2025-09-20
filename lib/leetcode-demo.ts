@@ -18,9 +18,9 @@ import { animationOrchestrator } from './animation-orchestrator'
 export class LeetCodeIntegrationDemo {
   static async runCompleteDemo() {
     console.log('🚀 LEETCODE ANIMATION INTEGRATION DEMO')
-    console.log('=' .repeat(60)
+    console.log('='.repeat(60))
     console.log('🎭 Integrating LeetCodeAnimation-master with our TypeScript system')
-    console.log('=' .repeat(60))
+    console.log('='.repeat(60))
 
     const results = {
       initialization: false,
@@ -83,7 +83,7 @@ export class LeetCodeIntegrationDemo {
       // Final Results
       console.log('\n' + '=' .repeat(60))
       console.log('🎉 LEETCODE INTEGRATION DEMO RESULTS')
-      console.log('=' .repeat(60))
+      console.log('='.repeat(60)))
 
       Object.entries(results).forEach(([test, passed]) => {
         const status = passed ? '✅' : '❌'

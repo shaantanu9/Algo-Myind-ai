@@ -109,7 +109,6 @@ function TwoSumVisualization({ step, data }: { step: AnimationStep; data: any })
               key={index}
               position={[index * 2 - array.length, 0, 0]}
               args={[1.5, 1.5, 1.5]}
-              ref={groupRef}
             >
               <meshStandardMaterial {...materialProps} />
               <Html position={[0, 0, 0.8]} center>
@@ -158,7 +157,7 @@ function TwoSumVisualization({ step, data }: { step: AnimationStep; data: any })
     const hashEntries = Object.entries(hashMap)
     return (
       <>
-        {hashEntries.map(([key, value], index) => {
+        {hashEntries.map(([key, value]: [string, any], index: number) => {
           const isComplement = complement !== undefined && parseInt(key) === complement
           return (
             <group key={key} position={[index * 2.5 - hashEntries.length * 1.25, 3, 0]}>
@@ -224,6 +223,455 @@ function TwoSumVisualization({ step, data }: { step: AnimationStep; data: any })
           )
         })}
       </>
+    )
+  }
+
+  // Linked List Visualization Component
+  function LinkedListVisualization({ step, data }: { step: AnimationStep; data: any }) {
+    // Handle different data formats from AI-generated JSON
+    let lessList = []
+    let greaterList = []
+    let finalList = []
+    const partitionValue = data.partitionValue || 3
+
+    if (data.lessList && Array.isArray(data.lessList)) {
+      lessList = data.lessList
+    }
+    if (data.greaterList && Array.isArray(data.greaterList)) {
+      greaterList = data.greaterList
+    }
+    if (data.finalList && Array.isArray(data.finalList)) {
+      finalList = data.finalList
+    }
+
+    return (
+      <group>
+        {/* Algorithm title */}
+        <Html position={[0, 8, 0]} center>
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl font-bold text-xl">
+            🔗 Linked List Partition Algorithm
+          </div>
+        </Html>
+
+        {/* Step indicator */}
+        <Html position={[0, 6, 0]} center>
+          <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
+            <p className="text-gray-700 font-semibold">Step {step.step}: {step.title}</p>
+            <p className="text-sm text-gray-500">Partition Value: {partitionValue}</p>
+          </div>
+        </Html>
+
+        {/* Less-than list visualization */}
+        <group position={[-4, 2, 0]}>
+          <Html position={[0, 1, 0]} center>
+            <div className="bg-green-100 px-3 py-1 rounded shadow font-semibold text-green-800">
+              Less Than {partitionValue}
+            </div>
+          </Html>
+
+          {lessList.map((node: any, index: number) => {
+            const value = typeof node === 'object' ? (node.value || node.val || node) : node
+            const x = (index - lessList.length / 2) * 1.5
+            const y = 0
+            const z = 0
+
+            return (
+              <group key={`less-${index}`} position={[x, y, z]}>
+                <Box args={[0.8, 0.8, 0.2]}>
+                  <meshStandardMaterial
+                    color="#10b981"
+                    emissive="#047857"
+                    emissiveIntensity={step.step >= 3 ? 0.2 : 0}
+                  />
+                </Box>
+
+                {/* Node value */}
+                <Html position={[0, 0, 0.15]} center>
+                  <div className="bg-green-500 text-white px-2 py-1 rounded shadow font-bold text-lg">
+                    {value}
+                  </div>
+                </Html>
+
+                {/* Arrow to next node */}
+                {index < lessList.length - 1 && (
+                  <group position={[0.75, 0, 0]}>
+                    <Cylinder args={[0.02, 0.02, 0.5]}>
+                      <meshStandardMaterial color="#10b981" />
+                    </Cylinder>
+                    <Cone args={[0.08, 0.2]} position={[0, 0, 0.25]}>
+                      <meshStandardMaterial color="#10b981" />
+                    </Cone>
+                  </group>
+                )}
+
+                {/* Active indicator */}
+                {step.step >= 3 && (
+                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                  </Sphere>
+                )}
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Greater-than list visualization */}
+        <group position={[-4, -2, 0]}>
+          <Html position={[0, 1, 0]} center>
+            <div className="bg-red-100 px-3 py-1 rounded shadow font-semibold text-red-800">
+              Greater Than {partitionValue}
+            </div>
+          </Html>
+
+          {greaterList.map((node: any, index: number) => {
+            const value = typeof node === 'object' ? (node.value || node.val || node) : node
+            const x = (index - greaterList.length / 2) * 1.5
+            const y = 0
+            const z = 0
+
+            return (
+              <group key={`greater-${index}`} position={[x, y, z]}>
+                <Box args={[0.8, 0.8, 0.2]}>
+                  <meshStandardMaterial
+                    color="#ef4444"
+                    emissive="#dc2626"
+                    emissiveIntensity={step.step >= 4 ? 0.2 : 0}
+                  />
+                </Box>
+
+                {/* Node value */}
+                <Html position={[0, 0, 0.15]} center>
+                  <div className="bg-red-500 text-white px-2 py-1 rounded shadow font-bold text-lg">
+                    {value}
+                  </div>
+                </Html>
+
+                {/* Arrow to next node */}
+                {index < greaterList.length - 1 && (
+                  <group position={[0.75, 0, 0]}>
+                    <Cylinder args={[0.02, 0.02, 0.5]}>
+                      <meshStandardMaterial color="#ef4444" />
+                    </Cylinder>
+                    <Cone args={[0.08, 0.2]} position={[0, 0, 0.25]}>
+                      <meshStandardMaterial color="#ef4444" />
+                    </Cone>
+                  </group>
+                )}
+
+                {/* Active indicator */}
+                {step.step >= 4 && (
+                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                  </Sphere>
+                )}
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Final merged list visualization */}
+        {finalList.length > 0 && (
+          <group position={[0, -6, 0]}>
+            <Html position={[0, 2, 0]} center>
+              <div className="bg-purple-100 px-4 py-2 rounded-lg shadow-lg font-semibold text-purple-800">
+                Final Partitioned List
+              </div>
+            </Html>
+
+            {finalList.map((value: any, index: number) => {
+              const actualValue = typeof value === 'object' ? (value.value || value.val || value) : value
+              const x = (index - finalList.length / 2) * 1.2
+              const y = 0
+              const z = 0
+              const isLess = actualValue < partitionValue
+
+              return (
+                <group key={`final-${index}`} position={[x, y, z]}>
+                  <Box args={[0.8, 0.8, 0.2]}>
+                    <meshStandardMaterial
+                      color={isLess ? "#10b981" : "#ef4444"}
+                      emissive={isLess ? "#047857" : "#dc2626"}
+                      emissiveIntensity={0.3}
+                    />
+                  </Box>
+
+                  {/* Node value */}
+                  <Html position={[0, 0, 0.15]} center>
+                    <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
+                      isLess ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                    }`}>
+                      {actualValue}
+                    </div>
+                  </Html>
+
+                  {/* Arrow to next node */}
+                  {index < finalList.length - 1 && (
+                    <group position={[0.6, 0, 0]}>
+                      <Cylinder args={[0.02, 0.02, 0.4]}>
+                        <meshStandardMaterial color="#7c3aed" />
+                      </Cylinder>
+                      <Cone args={[0.06, 0.15]} position={[0, 0, 0.2]}>
+                        <meshStandardMaterial color="#7c3aed" />
+                      </Cone>
+                    </group>
+                  )}
+
+                  {/* Celebration particles for final result */}
+                  <group>
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <Sphere key={i} args={[0.03]} position={[
+                        (Math.random() - 0.5) * 0.8,
+                        Math.random() * 0.5 + 0.5,
+                        (Math.random() - 0.5) * 0.8
+                      ]}>
+                        <meshStandardMaterial
+                          color={["#fbbf24", "#f59e0b", "#10b981", "#ef4444", "#7c3aed"][i]}
+                          emissive={["#f59e0b", "#d97706", "#047857", "#dc2626", "#5b21b6"][i]}
+                          emissiveIntensity={0.8}
+                        />
+                      </Sphere>
+                    ))}
+                  </group>
+                </group>
+              )
+            })}
+          </group>
+        )}
+
+        {/* Partition value indicator */}
+        <group position={[6, 4, 0]}>
+          <Sphere args={[0.3]}>
+            <meshStandardMaterial color="#f59e0b" emissive="#d97706" emissiveIntensity={0.6} />
+          </Sphere>
+          <Html position={[0, 0, 0.4]} center>
+            <div className="bg-orange-100 px-3 py-2 rounded-lg shadow-lg font-semibold text-orange-800">
+              Partition: {partitionValue}
+            </div>
+          </Html>
+        </group>
+      </group>
+    )
+  }
+
+  // String Palindrome Visualization Component
+  function StringPalindromeVisualization({ step, data }: { step: AnimationStep; data: any }) {
+    // Handle different data formats from AI-generated JSON
+    let originalString = ""
+    let reversedString = ""
+    let currentIndex = 0
+
+    if (data) {
+      if (typeof data.original === 'string') {
+        originalString = data.original
+      } else if (Array.isArray(data.original)) {
+        originalString = data.original.map((char: any) => char.char || char).join('')
+      }
+
+      if (typeof data.reversed === 'string') {
+        reversedString = data.reversed
+      } else if (Array.isArray(data.reversed)) {
+        reversedString = data.reversed.map((char: any) => char.char || char).join('')
+      }
+
+      currentIndex = data.currentIndex || data.i || 0
+    }
+
+    const originalChars = originalString.split('')
+    const reversedChars = reversedString.split('')
+
+    return (
+      <group>
+        {/* Algorithm title */}
+        <Html position={[0, 8, 0]} center>
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl font-bold text-xl">
+            🔄 Shortest Palindrome Algorithm
+          </div>
+        </Html>
+
+        {/* Step indicator */}
+        <Html position={[0, 6, 0]} center>
+          <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
+            <p className="text-gray-700 font-semibold">Step {step.step}: {step.title}</p>
+          </div>
+        </Html>
+
+        {/* Original string visualization */}
+        <group position={[-4, 2, 0]}>
+          <Html position={[0, 1, 0]} center>
+            <div className="bg-blue-100 px-3 py-1 rounded shadow font-semibold text-blue-800">
+              Original String
+            </div>
+          </Html>
+
+          {originalChars.map((char: string, index: number) => {
+            const isActive = index === currentIndex
+            const x = (index - originalChars.length / 2) * 1.2
+            const y = 0
+            const z = 0
+
+            return (
+              <group key={`orig-${index}`} position={[x, y, z]}>
+                <Box args={[0.8, 0.8, 0.2]}>
+                  <meshStandardMaterial
+                    color={isActive ? "#3b82f6" : "#ffffff"}
+                    emissive={isActive ? "#1d4ed8" : "#000000"}
+                    emissiveIntensity={isActive ? 0.2 : 0}
+                  />
+                </Box>
+
+                {/* Character label */}
+                <Html position={[0, 0, 0.15]} center>
+                  <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
+                    isActive ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-800"
+                  }`}>
+                    {char}
+                  </div>
+                </Html>
+
+                {/* Index label */}
+                <Html position={[0, -0.6, 0.15]} center>
+                  <div className="text-xs text-gray-600 font-medium">[{index}]</div>
+                </Html>
+
+                {/* Active indicator */}
+                {isActive && (
+                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                  </Sphere>
+                )}
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Reversed string visualization */}
+        <group position={[-4, -2, 0]}>
+          <Html position={[0, 1, 0]} center>
+            <div className="bg-green-100 px-3 py-1 rounded shadow font-semibold text-green-800">
+              Reversed String
+            </div>
+          </Html>
+
+          {reversedChars.map((char: string, index: number) => {
+            const isActive = index === currentIndex
+            const x = (index - reversedChars.length / 2) * 1.2
+            const y = 0
+            const z = 0
+
+            return (
+              <group key={`rev-${index}`} position={[x, y, z]}>
+                <Box args={[0.8, 0.8, 0.2]}>
+                  <meshStandardMaterial
+                    color={isActive ? "#10b981" : "#ffffff"}
+                    emissive={isActive ? "#047857" : "#000000"}
+                    emissiveIntensity={isActive ? 0.2 : 0}
+                  />
+                </Box>
+
+                {/* Character label */}
+                <Html position={[0, 0, 0.15]} center>
+                  <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
+                    isActive ? "bg-green-500 text-white" : "bg-gray-100 text-gray-800"
+                  }`}>
+                    {char}
+                  </div>
+                </Html>
+
+                {/* Index label */}
+                <Html position={[0, -0.6, 0.15]} center>
+                  <div className="text-xs text-gray-600 font-medium">[{index}]</div>
+                </Html>
+
+                {/* Active indicator */}
+                {isActive && (
+                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                  </Sphere>
+                )}
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Comparison visualization */}
+        {data?.s_slice && data?.reversed_slice && (
+          <group position={[4, 0, 0]}>
+            <Html position={[0, 2, 0]} center>
+              <div className="bg-purple-100 px-4 py-2 rounded-lg shadow-lg font-semibold text-purple-800">
+                String Comparison
+              </div>
+            </Html>
+
+            {/* S prefix */}
+            <Html position={[-2, 1, 0]} center>
+              <div className="bg-blue-50 px-3 py-2 rounded shadow font-medium text-blue-800">
+                S Prefix: "{data.s_slice}"
+              </div>
+            </Html>
+
+            {/* Reversed suffix */}
+            <Html position={[-2, -1, 0]} center>
+              <div className="bg-green-50 px-3 py-2 rounded shadow font-medium text-green-800">
+                Reversed Suffix: "{data.reversed_slice}"
+              </div>
+            </Html>
+
+            {/* Match result */}
+            <Html position={[2, 0, 0]} center>
+              <div className={`px-4 py-2 rounded-lg shadow-lg font-bold text-lg ${
+                data.s_slice === data.reversed_slice
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}>
+                {data.s_slice === data.reversed_slice ? "✅ MATCH!" : "❌ NO MATCH"}
+              </div>
+            </Html>
+          </group>
+        )}
+
+        {/* Result visualization */}
+        {data?.result && (
+          <group position={[0, -6, 0]}>
+            <Box args={[8, 1, 0.5]}>
+              <meshStandardMaterial color="#7c3aed" emissive="#5b21b6" emissiveIntensity={0.1} />
+            </Box>
+            <Html position={[0, 0, 0.3]} center>
+              <div className="bg-purple-100 px-6 py-3 rounded-xl shadow-xl font-bold text-purple-800 text-xl">
+                Shortest Palindrome: "{data.result}"
+              </div>
+            </Html>
+
+            {/* Celebration particles */}
+            <group>
+              {Array.from({ length: 10 }, (_, i) => (
+                <Sphere key={i} args={[0.05]} position={[
+                  (Math.random() - 0.5) * 6,
+                  Math.random() * 2,
+                  (Math.random() - 0.5) * 2
+                ]}>
+                  <meshStandardMaterial
+                    color={["#fbbf24", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"][i % 5]}
+                    emissive={["#f59e0b", "#d97706", "#047857", "#1d4ed8", "#6d28d9"][i % 5]}
+                    emissiveIntensity={0.5}
+                  />
+                </Sphere>
+              ))}
+            </group>
+          </group>
+        )}
+
+        {/* Processing indicator */}
+        <group position={[6, 4, 0]}>
+          <Sphere args={[0.3]}>
+            <meshStandardMaterial color="#f59e0b" emissive="#d97706" emissiveIntensity={0.6} />
+          </Sphere>
+          <Html position={[0, 0, 0.4]} center>
+            <div className="bg-orange-100 px-3 py-2 rounded-lg shadow-lg font-semibold text-orange-800">
+              Processing Length: {currentIndex}
+            </div>
+          </Html>
+        </group>
+      </group>
     )
   }
 
@@ -483,8 +931,18 @@ export function ThreeAnimation({
   const currentStepData = steps[currentStep]
 
   const renderVisualization = () => {
-    if (algorithmId === "two-sum") {
+    // Enhanced algorithm detection for AI-generated JSON
+    if (algorithmId === "two-sum" || (steps.length > 0 && steps[0].data?.array)) {
       return <TwoSumVisualization step={currentStepData} data={currentStepData.data} />
+    }
+    if (algorithmId === "shortest-palindrome" || (steps.length > 0 && steps[0].data?.original !== undefined)) {
+      return <StringPalindromeVisualization step={currentStepData} data={currentStepData.data} />
+    }
+    if (algorithmId === "reverse-integer" || (steps.length > 0 && steps[0].data?.original !== undefined)) {
+      return <MathVisualization step={currentStepData} data={currentStepData.data} />
+    }
+    if (algorithmId.includes("partition") || (steps.length > 0 && steps[0].data?.lessHead)) {
+      return <LinkedListVisualization step={currentStepData} data={currentStepData.data} />
     }
     return <GenericVisualization step={currentStepData} />
   }

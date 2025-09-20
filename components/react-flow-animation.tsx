@@ -19,6 +19,7 @@ import ReactFlow, {
   Panel,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { alphabetServer, createTypingAnimation, createWaveAnimation, create3DAnimation, createWordAnimation } from "@/lib/alphabet-server"
 
 interface AnimationStep {
   step: number
@@ -92,6 +93,10 @@ export function ReactFlowAnimation({
     totalOperations: 0
   })
   const [isAnimating, setIsAnimating] = useState(false)
+  const [textAnimations, setTextAnimations] = useState<Map<string, any>>(new Map())
+  const [currentTextAnimation, setCurrentTextAnimation] = useState<string | null>(null)
+  const [textAnimationProgress, setTextAnimationProgress] = useState(0)
+  const [flowTextElements, setFlowTextElements] = useState<Map<string, any>>(new Map())
 
   const initialNodes: Node[] = []
   const initialEdges: Edge[] = []
@@ -100,11 +105,568 @@ export function ReactFlowAnimation({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   const generateReactFlowData = useCallback((step: AnimationStep, algorithmId: string) => {
-    if (algorithmId === "two-sum") {
+    // Enhanced algorithm detection for AI-generated JSON
+    if (algorithmId === "two-sum" || (step.data?.array && step.data?.target)) {
       return generateTwoSumFlow(step)
+    }
+    if (algorithmId === "container-with-most-water" || step.data?.array?.length > 0) {
+      return generateContainerWithMostWaterFlow(step)
+    }
+    if (algorithmId === "shortest-palindrome" || step.data?.original !== undefined) {
+      return generateStringManipulationFlow(step)
+    }
+    if (algorithmId === "reverse-integer" || step.data?.original !== undefined) {
+      return generateMathFlow(step)
+    }
+    if (algorithmId.includes("partition") || step.data?.lessHead || step.data?.greaterHead) {
+      return generateLinkedListFlow(step)
     }
     return generateDefaultFlow(step)
   }, [])
+
+  const generateContainerWithMostWaterFlow = (step: AnimationStep) => {
+    const { array = [], left = 0, right = array.length - 1, currentArea = 0, maxArea = 0 } = step.data || {}
+    const nodes: Node[] = []
+    const edges: Edge[] = []
+
+    // Algorithm header
+    nodes.push({
+      id: "algorithm-header",
+      type: "custom",
+      position: { x: 300, y: -50 },
+      data: {
+        label: "🏗️ Container With Most Water",
+        subLabel: `Area: ${currentArea}`,
+        emoji: "🏗️",
+        isHighlighted: true
+      },
+    })
+
+    // Array elements as bars
+    array.forEach((height: number, index: number) => {
+      const isActive = index === left || index === right
+      const isInRange = index >= left && index <= right
+
+      nodes.push({
+        id: `bar-${index}`,
+        type: "custom",
+        position: { x: index * 80 - (array.length * 40) + 300, y: 100 },
+        data: {
+          label: height.toString(),
+          subLabel: `Index: ${index}`,
+          emoji: isActive ? "🎯" : isInRange ? "💧" : "📦",
+          isActive,
+          isHighlighted: isInRange,
+          height: height * 2 // Scale for visualization
+        },
+      })
+    })
+
+    // Pointers
+    nodes.push({
+      id: "left-pointer",
+      type: "custom",
+      position: { x: left * 80 - (array.length * 40) + 300, y: 200 },
+      data: {
+        label: "Left",
+        subLabel: `Index: ${left}`,
+        emoji: "👈",
+        isActive: true
+      },
+    })
+
+    nodes.push({
+      id: "right-pointer",
+      type: "custom",
+      position: { x: right * 80 - (array.length * 40) + 300, y: 200 },
+      data: {
+        label: "Right",
+        subLabel: `Index: ${right}`,
+        emoji: "👉",
+        isActive: true
+      },
+    })
+
+    // Results
+    nodes.push({
+      id: "current-area",
+      type: "custom",
+      position: { x: 100, y: 300 },
+      data: {
+        label: "Current Area",
+        subLabel: currentArea.toString(),
+        emoji: "📊",
+        isHighlighted: true
+      },
+    })
+
+    nodes.push({
+      id: "max-area",
+      type: "custom",
+      position: { x: 300, y: 300 },
+      data: {
+        label: "Max Area",
+        subLabel: maxArea.toString(),
+        emoji: "🏆",
+        isHighlighted: true
+      },
+    })
+
+    return { nodes, edges }
+  }
+
+  const generateStringManipulationFlow = (step: AnimationStep) => {
+    const nodes: Node[] = []
+    const edges: Edge[] = []
+
+    // Handle different data formats from AI-generated JSON
+    let originalString = ""
+    let reversedString = ""
+    let currentIndex = 0
+    let s_slice = ""
+    let reversed_slice = ""
+    let result = ""
+
+    if (step.data) {
+      if (typeof step.data.original === 'string') {
+        originalString = step.data.original
+      } else if (Array.isArray(step.data.original)) {
+        originalString = step.data.original.map((char: any) => char.char || char).join('')
+      }
+
+      if (typeof step.data.reversed === 'string') {
+        reversedString = step.data.reversed
+      } else if (Array.isArray(step.data.reversed)) {
+        reversedString = step.data.reversed.map((char: any) => char.char || char).join('')
+      }
+
+      currentIndex = step.data.currentIndex || step.data.i || 0
+      s_slice = step.data.s_slice || ""
+      reversed_slice = step.data.reversed_slice || ""
+      result = step.data.result || ""
+    }
+
+    // Algorithm header
+    nodes.push({
+      id: "algorithm-header",
+      type: "custom",
+      position: { x: 350, y: -50 },
+      data: {
+        label: "🔄 Shortest Palindrome",
+        subLabel: `Finding palindromic prefix`,
+        emoji: "🔄",
+        isHighlighted: true
+      },
+    })
+
+    // Input string node
+    nodes.push({
+      id: "input-string",
+      type: "custom",
+      position: { x: 50, y: 50 },
+      data: {
+        label: "Input String",
+        subLabel: `"${originalString}"`,
+        emoji: "📥",
+        isHighlighted: true
+      },
+    })
+
+    // Reverse operation node
+    nodes.push({
+      id: "reverse-operation",
+      type: "custom",
+      position: { x: 350, y: 50 },
+      data: {
+        label: "Reverse String",
+        subLabel: `"${reversedString}"`,
+        emoji: "🔄",
+        isActive: step.step === 1
+      },
+    })
+
+    // Connect input to reverse
+    edges.push({
+      id: "input-to-reverse",
+      source: "input-string",
+      target: "reverse-operation",
+      type: "smoothstep",
+      animated: step.step >= 1,
+      style: { stroke: '#3b82f6', strokeWidth: 3 }
+    })
+
+    // Original string character nodes
+    const originalChars = originalString.split('')
+    originalChars.forEach((char: string, index: number) => {
+      const isActive = index === currentIndex
+      nodes.push({
+        id: `orig-${index}`,
+        type: "custom",
+        position: { x: index * 70 + 50, y: 150 },
+        data: {
+          label: char,
+          subLabel: `[${index}]`,
+          emoji: isActive ? "🎯" : "📝",
+          isActive,
+          isHighlighted: isActive
+        },
+      })
+    })
+
+    // Reversed string character nodes
+    const reversedChars = reversedString.split('')
+    reversedChars.forEach((char: string, index: number) => {
+      const isActive = index === currentIndex
+      nodes.push({
+        id: `rev-${index}`,
+        type: "custom",
+        position: { x: index * 70 + 50, y: 250 },
+        data: {
+          label: char,
+          subLabel: `[${index}]`,
+          emoji: isActive ? "🎯" : "🔄",
+          isActive,
+          isHighlighted: isActive
+        },
+      })
+    })
+
+    // Comparison node (appears in step 2-3)
+    if (step.step >= 2 && s_slice && reversed_slice) {
+      nodes.push({
+        id: "comparison-node",
+        type: "custom",
+        position: { x: 350, y: 350 },
+        data: {
+          label: "Compare Slices",
+          subLabel: s_slice === reversed_slice ? "✅ MATCH" : "❌ NO MATCH",
+          emoji: s_slice === reversed_slice ? "✅" : "❌",
+          isActive: step.step === 3,
+          isHighlighted: step.step === 3
+        },
+      })
+
+      // Connect some original characters to comparison
+      if (currentIndex < originalChars.length) {
+        edges.push({
+          id: `orig-${currentIndex}-to-comparison`,
+          source: `orig-${currentIndex}`,
+          target: "comparison-node",
+          type: "smoothstep",
+          animated: step.step >= 3,
+          style: { stroke: '#3b82f6', strokeWidth: 2 }
+        })
+      }
+
+      // Connect some reversed characters to comparison
+      if (currentIndex < reversedChars.length) {
+        edges.push({
+          id: `rev-${currentIndex}-to-comparison`,
+          source: `rev-${currentIndex}`,
+          target: "comparison-node",
+          type: "smoothstep",
+          animated: step.step >= 3,
+          style: { stroke: '#10b981', strokeWidth: 2 }
+        })
+      }
+    }
+
+    // Result node (appears when we find a match)
+    if (result) {
+      nodes.push({
+        id: "result-node",
+        type: "custom",
+        position: { x: 350, y: 450 },
+        data: {
+          label: "Shortest Palindrome",
+          subLabel: `"${result}"`,
+          emoji: "🏆",
+          isHighlighted: true
+        },
+      })
+
+      // Connect comparison to result
+      edges.push({
+        id: "comparison-to-result",
+        source: "comparison-node",
+        target: "result-node",
+        type: "smoothstep",
+        animated: true,
+        style: { stroke: '#7c3aed', strokeWidth: 3 }
+      })
+    }
+
+    // Processing indicator
+    nodes.push({
+      id: "processing-indicator",
+      type: "custom",
+      position: { x: 600, y: 50 },
+      data: {
+        label: `Processing Length`,
+        subLabel: `i = ${currentIndex}`,
+        emoji: "⚡",
+        isActive: true
+      },
+    })
+
+  return { nodes, edges }
+}
+
+const generateLinkedListFlow = (step: AnimationStep) => {
+  const nodes: Node[] = []
+  const edges: Edge[] = []
+
+  // Handle different data formats from AI-generated JSON
+  const {
+    lessHead,
+    greaterHead,
+    less,
+    greater,
+    currentNode,
+    lessList = [],
+    greaterList = [],
+    finalList = [],
+    partitionValue = 3
+  } = step.data || {}
+
+  // Algorithm header
+  nodes.push({
+    id: "algorithm-header",
+    type: "custom",
+    position: { x: 400, y: -100 },
+    data: {
+      label: "🔗 Linked List Partition",
+      subLabel: `Partition value: ${partitionValue}`,
+      emoji: "🔗",
+      isHighlighted: true
+    },
+  })
+
+  // Less-than list header
+  nodes.push({
+    id: "less-header",
+    type: "custom",
+    position: { x: 100, y: 50 },
+    data: {
+      label: "Less Than",
+      subLabel: `< ${partitionValue}`,
+      emoji: "⬇️",
+      isActive: step.step >= 3
+    },
+  })
+
+  // Greater-than list header
+  nodes.push({
+    id: "greater-header",
+    type: "custom",
+    position: { x: 600, y: 50 },
+    data: {
+      label: "Greater Than",
+      subLabel: `>= ${partitionValue}`,
+      emoji: "⬆️",
+      isActive: step.step >= 4
+    },
+  })
+
+  // Create nodes for less-than list
+  lessList.forEach((node: any, index: number) => {
+    const nodeId = `less-${index}`
+    nodes.push({
+      id: nodeId,
+      type: "custom",
+      position: { x: 50 + index * 100, y: 150 },
+      data: {
+        label: node.value || node.val || node,
+        subLabel: `Node ${index}`,
+        emoji: "🔵",
+        isActive: step.step >= 3
+      },
+    })
+
+    // Connect nodes in less-than list
+    if (index > 0) {
+      edges.push({
+        id: `less-edge-${index - 1}-${index}`,
+        source: `less-${index - 1}`,
+        target: nodeId,
+        type: "smoothstep",
+        animated: step.step >= 3,
+        style: { stroke: '#10b981', strokeWidth: 3 },
+        label: "next"
+      })
+    }
+  })
+
+  // Create nodes for greater-than list
+  greaterList.forEach((node: any, index: number) => {
+    const nodeId = `greater-${index}`
+    nodes.push({
+      id: nodeId,
+      type: "custom",
+      position: { x: 550 + index * 100, y: 150 },
+      data: {
+        label: node.value || node.val || node,
+        subLabel: `Node ${index}`,
+        emoji: "🔴",
+        isActive: step.step >= 4
+      },
+    })
+
+    // Connect nodes in greater-than list
+    if (index > 0) {
+      edges.push({
+        id: `greater-edge-${index - 1}-${index}`,
+        source: `greater-${index - 1}`,
+        target: nodeId,
+        type: "smoothstep",
+        animated: step.step >= 4,
+        style: { stroke: '#ef4444', strokeWidth: 3 },
+        label: "next"
+      })
+    }
+  })
+
+  // Create nodes for final merged list
+  if (step.step >= 5 && finalList.length > 0) {
+    finalList.forEach((value: any, index: number) => {
+      const nodeId = `final-${index}`
+      const actualValue = typeof value === 'object' ? (value.value || value.val || value) : value
+
+      nodes.push({
+        id: nodeId,
+        type: "custom",
+        position: { x: 200 + index * 80, y: 300 },
+        data: {
+          label: actualValue,
+          subLabel: `Pos ${index}`,
+          emoji: actualValue < partitionValue ? "🔵" : "🔴",
+          isHighlighted: true
+        },
+      })
+
+      // Connect final list
+      if (index > 0) {
+        edges.push({
+          id: `final-edge-${index - 1}-${index}`,
+          source: `final-${index - 1}`,
+          target: nodeId,
+          type: "smoothstep",
+          animated: true,
+          style: { stroke: '#7c3aed', strokeWidth: 3 }
+        })
+      }
+    })
+
+    // Connect less list to greater list in final result
+    if (lessList.length > 0 && greaterList.length > 0) {
+      edges.push({
+        id: "merge-lists",
+        source: `less-${lessList.length - 1}`,
+        target: `greater-0`,
+        type: "smoothstep",
+        animated: true,
+        style: { stroke: '#7c3aed', strokeWidth: 4 },
+        label: "merged"
+      })
+    }
+  }
+
+  // Partition value indicator
+  nodes.push({
+    id: "partition-indicator",
+    type: "custom",
+    position: { x: 400, y: 200 },
+    data: {
+      label: `Partition: ${partitionValue}`,
+      subLabel: "Threshold value",
+      emoji: "🎯",
+      isActive: true
+    },
+  })
+
+  return { nodes, edges }
+}
+
+const generateMathFlow = (step: AnimationStep) => {
+    const { original = 0, reversed = 0, digit, remainder } = step.data || {}
+    const nodes: Node[] = []
+    const edges: Edge[] = []
+
+    // Algorithm header
+    nodes.push({
+      id: "algorithm-header",
+      type: "custom",
+      position: { x: 300, y: -50 },
+      data: {
+        label: "🔢 Reverse Integer",
+        subLabel: `Processing ${original}`,
+        emoji: "🔢",
+        isHighlighted: true
+      },
+    })
+
+    // Original number
+    nodes.push({
+      id: "original",
+      type: "custom",
+      position: { x: 200, y: 100 },
+      data: {
+        label: "Original",
+        subLabel: original.toString(),
+        emoji: "📥",
+        isHighlighted: true
+      },
+    })
+
+    // Reversed number
+    nodes.push({
+      id: "reversed",
+      type: "custom",
+      position: { x: 400, y: 100 },
+      data: {
+        label: "Reversed",
+        subLabel: reversed.toString(),
+        emoji: "📤",
+        isHighlighted: true
+      },
+    })
+
+    // Current digit (if available)
+    if (digit !== undefined) {
+      nodes.push({
+        id: "current-digit",
+        type: "custom",
+        position: { x: 300, y: 200 },
+        data: {
+          label: "Current Digit",
+          subLabel: digit.toString(),
+          emoji: "🎯",
+          isActive: true
+        },
+      })
+
+      // Connect to processing flow
+      edges.push({
+        id: "orig-to-digit",
+        source: "original",
+        target: "current-digit",
+        type: "smoothstep",
+        animated: true,
+        style: { stroke: '#3b82f6', strokeWidth: 2 }
+      })
+
+      edges.push({
+        id: "digit-to-reversed",
+        source: "current-digit",
+        target: "reversed",
+        type: "smoothstep",
+        animated: true,
+        style: { stroke: '#10b981', strokeWidth: 2 }
+      })
+    }
+
+    return { nodes, edges }
+  }
 
   const generateTwoSumFlow = (step: AnimationStep) => {
     const { array = [], target = 0, currentIndex = 0, hashMap = {}, complement, found, result } = step.data || {}
@@ -177,7 +739,6 @@ export function ReactFlowAnimation({
           target: `array-${index}`,
           animated: true,
           style: { stroke: "#3b82f6", strokeWidth: 3 },
-          markerEnd: { type: "arrowclosed", color: "#3b82f6" }
         })
       }
     })
@@ -203,7 +764,6 @@ export function ReactFlowAnimation({
         target: "current-processing",
         animated: true,
         style: { stroke: "#8b5cf6", strokeWidth: 2 },
-        markerEnd: { type: "arrowclosed", color: "#8b5cf6" }
       })
     }
 
@@ -228,7 +788,6 @@ export function ReactFlowAnimation({
         target: "complement",
         animated: true,
         style: { stroke: "#ec4899", strokeWidth: 2 },
-        markerEnd: { type: "arrowclosed", color: "#ec4899" }
       })
     }
 
@@ -268,7 +827,6 @@ export function ReactFlowAnimation({
           target: `hash-${index}`,
           animated: false,
           style: { stroke: "#06b6d4", strokeWidth: 1 },
-          markerEnd: { type: "arrowclosed", color: "#06b6d4" }
         })
 
         // Connect complement to found hash entry
@@ -279,7 +837,6 @@ export function ReactFlowAnimation({
             target: `hash-${index}`,
             animated: true,
             style: { stroke: "#22c55e", strokeWidth: 3 },
-            markerEnd: { type: "arrowclosed", color: "#22c55e" }
           })
         }
       })
@@ -292,7 +849,6 @@ export function ReactFlowAnimation({
           target: "hashmap-header",
           animated: true,
           style: { stroke: "#06b6d4", strokeWidth: 2 },
-          markerEnd: { type: "arrowclosed", color: "#06b6d4" }
         })
       }
     }
@@ -317,7 +873,6 @@ export function ReactFlowAnimation({
         target: "result",
         animated: true,
         style: { stroke: "#22c55e", strokeWidth: 4 },
-        markerEnd: { type: "arrowclosed", color: "#22c55e" }
       })
     }
 
@@ -356,7 +911,6 @@ export function ReactFlowAnimation({
         target: "description",
         animated: true,
         style: { stroke: "#3b82f6", strokeWidth: 2 },
-        markerEnd: { type: "arrowclosed", color: "#3b82f6" }
       }
     ]
 
@@ -394,6 +948,358 @@ export function ReactFlowAnimation({
     }
     return () => clearInterval(interval)
   }, [isPlaying, currentStep, steps.length, onStepChange, onPlayPause])
+
+  // ============================================================================
+  // 🎭 ADVANCED TEXT ANIMATION METHODS
+  // ============================================================================
+
+  /**
+   * Create text animation for React Flow nodes
+   */
+  const createFlowTextAnimation = async (text: string, type: 'typing' | 'wave' | '3d' | 'word' = 'typing', targetNodeId?: string) => {
+    let animation
+    switch (type) {
+      case 'typing':
+        animation = createTypingAnimation(text, {
+          duration: 50,
+          stagger: 80,
+          easing: 'steps(1)'
+        })
+        break
+      case 'wave':
+        animation = createWaveAnimation(text, {
+          duration: 600,
+          stagger: 100,
+          easing: 'easeInOutSine'
+        })
+        break
+      case '3d':
+        animation = create3DAnimation(text, {
+          duration: 1000,
+          stagger: 150,
+          easing: 'easeOutBack'
+        })
+        break
+      case 'word':
+        animation = createWordAnimation(text, {
+          duration: 700,
+          stagger: 200,
+          easing: 'easeInOutQuad'
+        })
+        break
+    }
+
+    // Add React Flow-specific execution logic
+    animation.onProgress = (progress: number) => {
+      setTextAnimationProgress(progress)
+    }
+
+    animation.onComplete = () => {
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(100)
+    }
+
+    setTextAnimations(prev => new Map(prev.set(animation.id, animation)))
+    setCurrentTextAnimation(animation.id)
+
+    // Execute animation with React Flow-specific rendering
+    const result = await alphabetServer.executeAnimation(animation.id, ['reactflow'])
+
+    // Update React Flow nodes with animated text
+    if (targetNodeId) {
+      // Find the target node and update its data with animated text
+      setNodes(nds => nds.map(node => {
+        if (node.id === targetNodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              animatedText: (animation as any).elements,
+              isAnimatingText: true
+            }
+          }
+        }
+        return node
+      }))
+    } else {
+      // Create floating text nodes for the animation
+      const textNodes: Node[] = (animation as any).elements.map((element: any, index: number) => ({
+        id: `text-node-${element.id}`,
+        type: 'custom',
+        position: {
+          x: 100 + (index * 30),
+          y: 50 + Math.sin(index * 0.5) * 20
+        },
+        data: {
+          label: element.character,
+          emoji: '📝',
+          isActive: false,
+          isResult: false,
+          isHighlighted: false,
+          textElement: element,
+          isTextNode: true
+        },
+        style: {
+          opacity: element.isVisible ? 1 : 0,
+          transition: 'all 0.5s ease'
+        }
+      }))
+
+      setNodes(nds => [...nds, ...textNodes])
+      setFlowTextElements(prev => new Map(prev.set(animation.id, textNodes)))
+    }
+
+    return result
+  }
+
+  /**
+   * Enhanced node text animation
+   */
+  const animateNodeText = async (nodeId: string, text: string, type: 'typing' | 'wave' | '3d' | 'word' = 'typing') => {
+    // Create animation without executing immediately
+    let animation
+    switch (type) {
+      case 'typing':
+        animation = createTypingAnimation(text, { duration: 50, stagger: 80, easing: 'steps(1)' })
+        break
+      case 'wave':
+        animation = createWaveAnimation(text, { duration: 600, stagger: 100, easing: 'easeInOutSine' })
+        break
+      case '3d':
+        animation = create3DAnimation(text, { duration: 1000, stagger: 150, easing: 'easeOutBack' })
+        break
+      case 'word':
+        animation = createWordAnimation(text, { duration: 700, stagger: 200, easing: 'easeInOutQuad' })
+        break
+      default:
+        animation = createTypingAnimation(text)
+    }
+
+    // Add React Flow-specific execution logic
+    animation.onProgress = (progress: number) => {
+      setTextAnimationProgress(progress)
+    }
+
+    animation.onComplete = () => {
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(100)
+    }
+
+    // Execute animation
+    const result = await alphabetServer.executeAnimation(animation.id, ['reactflow'])
+
+    // Update the specific node with animated text
+    setNodes(nds => nds.map(node => {
+      if (node.id === nodeId) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            animatedTextElements: (animation as any).elements,
+            textAnimationType: type
+          }
+        }
+      }
+      return node
+    }))
+
+    return animation
+  }
+
+  /**
+   * Create animated edge labels
+   */
+  const createAnimatedEdgeLabel = async (edgeId: string, text: string) => {
+    const animation = createTypingAnimation(text, {
+      duration: 100,
+      stagger: 50,
+      easing: 'easeOutQuad'
+    })
+
+    // Update edge with animated label
+    setEdges(eds => eds.map(edge => {
+      if (edge.id === edgeId) {
+        return {
+          ...edge,
+          label: text,
+          animated: true,
+          labelStyle: { fontSize: 12, fill: '#3b82f6' },
+          data: {
+            ...edge.data,
+            animatedLabel: (animation as any).elements
+          }
+        }
+      }
+      return edge
+    }))
+
+    await alphabetServer.executeAnimation(animation.id, ['reactflow'])
+    return animation
+  }
+
+  /**
+   * Create complex flow narrative with multiple text animations
+   */
+  const createFlowNarrative = async (narrativeSteps: Array<{ text: string, nodeId?: string, delay?: number }>) => {
+    const narrativeId = `narrative-${Date.now()}`
+    const animations: any[] = []
+
+    for (let i = 0; i < narrativeSteps.length; i++) {
+      const step = narrativeSteps[i]
+      const animationType = i % 2 === 0 ? 'typing' : 'wave'
+
+      // Create animation without executing immediately
+      let animation
+      switch (animationType) {
+        case 'typing':
+          animation = createTypingAnimation(step.text, { duration: 50, stagger: 80, easing: 'steps(1)' })
+          break
+        case 'wave':
+          animation = createWaveAnimation(step.text, { duration: 600, stagger: 100, easing: 'easeInOutSine' })
+          break
+        default:
+          animation = createTypingAnimation(step.text)
+      }
+
+      // Add React Flow-specific execution logic
+      animation.onProgress = (progress: number) => {
+        setTextAnimationProgress(progress)
+      }
+
+      animation.onComplete = () => {
+        setCurrentTextAnimation(null)
+        setTextAnimationProgress(100)
+      }
+
+      // Add delays between narrative steps
+      if (step.delay || i > 0) {
+        const delay = step.delay || 1500
+        if ((animation as any).config) {
+          (animation as any).config.delay = i * delay
+        }
+      }
+
+      // Execute the animation
+      await alphabetServer.executeAnimation(animation.id, ['reactflow'])
+
+      animations.push(animation)
+
+      // Brief pause between steps
+      if (i < narrativeSteps.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, step.delay || 1500))
+      }
+    }
+
+    setTextAnimations(prev => new Map(prev.set(narrativeId, animations)))
+    return narrativeId
+  }
+
+  /**
+   * Stop current text animation and clean up
+   */
+  const stopFlowTextAnimation = () => {
+    if (currentTextAnimation) {
+      alphabetServer.stopAnimation(currentTextAnimation)
+
+      // Remove animated text nodes
+      const textNodes = flowTextElements.get(currentTextAnimation) || []
+      setNodes(nds => nds.filter(node => !textNodes.some((textNode: Node) => textNode.id === node.id)))
+
+      // Reset node text animations
+      setNodes(nds => nds.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          animatedTextElements: undefined,
+          isAnimatingText: false
+        }
+      })))
+
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(0)
+    }
+  }
+
+  /**
+   * Get text animation performance metrics
+   */
+  const getFlowTextMetrics = () => {
+    if (!currentTextAnimation) return null
+    return alphabetServer.getPerformanceMetrics(currentTextAnimation)
+  }
+
+  /**
+   * Enhanced node types for animated text
+   */
+  const EnhancedCustomNode = ({ data }: any) => {
+    const isActive = data.isActive
+    const isResult = data.isResult
+    const isHighlighted = data.isHighlighted
+    const isTextNode = data.isTextNode
+    const animatedTextElements = data.animatedTextElements
+
+    // For animated text nodes
+    if (isTextNode && data.textElement) {
+      const element = data.textElement
+      return (
+        <div
+          className={`px-3 py-2 rounded-lg shadow-lg text-sm font-bold border-2 transition-all duration-300 ${
+            element.isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          }`}
+          style={{
+            backgroundColor: element.style?.color || '#3b82f6',
+            color: 'white',
+            borderColor: element.style?.color || '#3b82f6',
+            transform: element.style?.transform || 'none',
+            textShadow: element.style?.textShadow || 'none'
+          }}
+        >
+          {element.character}
+        </div>
+      )
+    }
+
+    // For regular nodes with animated text
+    let bgColor = "bg-gray-100 border-gray-300 text-gray-800"
+    let emoji = data.emoji || "📦"
+
+    if (isResult) {
+      bgColor = "bg-green-100 border-green-400 text-green-800"
+      emoji = "🎯"
+    } else if (isActive) {
+      bgColor = "bg-blue-100 border-blue-400 text-blue-800 animate-pulse"
+      emoji = "⚡"
+    } else if (isHighlighted) {
+      bgColor = "bg-purple-100 border-purple-400 text-purple-800"
+      emoji = "💡"
+    }
+
+    return (
+      <div className={`px-4 py-3 rounded-xl border-2 shadow-lg transition-all duration-300 ${bgColor} relative`}>
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{emoji}</span>
+          <div className="text-sm font-medium">
+            {data.label}
+            {data.subLabel && (
+              <div className="text-xs opacity-75 mt-1">{data.subLabel}</div>
+            )}
+            {/* Render animated text elements if present */}
+            {animatedTextElements && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl">
+                <div className="text-white text-xs font-bold">
+                  {animatedTextElements.filter((el: any) => el.isVisible).map((el: any) => el.character).join('')}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const enhancedNodeTypes = {
+    custom: EnhancedCustomNode,
+  }
 
   const canGoPrevious = currentStep > 0
   const canGoNext = currentStep < steps.length - 1
@@ -462,7 +1368,7 @@ export function ReactFlowAnimation({
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            nodeTypes={nodeTypes}
+            nodeTypes={enhancedNodeTypes}
             fitView
             attributionPosition="top-right"
             className="bg-transparent"
@@ -611,6 +1517,128 @@ export function ReactFlowAnimation({
               ⚡ <strong>Animated connections</strong> show data flow • 🎯 <strong>Click nodes</strong> for more info
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Advanced Text Animation Controls */}
+      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-indigo-200 dark:border-indigo-700">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🎭</div>
+            <div>
+              <h4 className="font-semibold text-indigo-800 dark:text-indigo-200 mb-1">Flow Text Animations</h4>
+              <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                Advanced character and word animations integrated with React Flow nodes
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createFlowTextAnimation(steps[currentStep]?.title || 'Sample Text', 'typing')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              ⌨️ Type
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createFlowTextAnimation(steps[currentStep]?.title || 'Sample Text', 'wave')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🌊 Wave
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createFlowTextAnimation(steps[currentStep]?.title || 'Sample Text', '3d')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🎲 3D
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createFlowTextAnimation(steps[currentStep]?.title || 'Sample Text', 'word')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              📝 Word
+            </Button>
+            {currentTextAnimation && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={stopFlowTextAnimation}
+                className="hover:scale-105 transition-all duration-200"
+              >
+                ⏹️ Stop
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Text Animation Progress */}
+        {currentTextAnimation && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-indigo-700 dark:text-indigo-300">Text Animation Progress</span>
+              <span className="font-medium text-indigo-800 dark:text-indigo-200">{Math.round(textAnimationProgress)}%</span>
+            </div>
+            <Progress value={textAnimationProgress} className="h-2" />
+          </div>
+        )}
+
+        {/* Text Animation Metrics */}
+        {getFlowTextMetrics() && (
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-indigo-600 dark:text-indigo-400">Duration</div>
+              <div className="text-sm font-medium">{getFlowTextMetrics()?.duration || 0}ms</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-indigo-600 dark:text-indigo-400">Elements</div>
+              <div className="text-sm font-medium">{currentTextAnimation ? textAnimations.get(currentTextAnimation)?.elements?.length || 0 : 0}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-indigo-600 dark:text-indigo-400">Nodes</div>
+              <div className="text-sm font-medium">{nodes.filter(n => n.data?.isTextNode).length}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-indigo-600 dark:text-indigo-400">Memory</div>
+              <div className="text-sm font-medium">{getFlowTextMetrics()?.memoryUsage || 0}MB</div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="mt-4 flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => createFlowNarrative([
+              { text: "Step 1: Initialize", delay: 1000 },
+              { text: "Step 2: Process", delay: 1500 },
+              { text: "Step 3: Complete", delay: 1000 }
+            ])}
+            className="text-xs"
+          >
+            📚 Narrative
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => animateNodeText('algorithm-header', 'Algorithm Running...', 'wave')}
+            className="text-xs"
+            disabled={nodes.length === 0}
+          >
+            🎯 Node Text
+          </Button>
         </div>
       </div>
     </div>

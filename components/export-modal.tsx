@@ -18,7 +18,7 @@ interface ExportModalProps {
   algorithmId: string
   algorithmTitle: string
   currentStep: number
-  animationType: "mermaid" | "three"
+  animationType: "mermaid" | "flow" | "d3" | "three"
 }
 
 export function ExportModal({

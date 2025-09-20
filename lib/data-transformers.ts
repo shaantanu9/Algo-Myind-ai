@@ -6,6 +6,8 @@
 import { Position, Size, ColorPalette, AnimationState } from './animation-core'
 
 export interface AlgorithmData {
+  id?: string
+  problemId?: number
   array?: number[]
   target?: number
   currentIndex?: number
@@ -16,6 +18,8 @@ export interface AlgorithmData {
   tree?: TreeNode
   graph?: GraphData
   matrix?: number[][]
+  lastModified?: number
+  createdAt?: number
   [key: string]: any
 }
 

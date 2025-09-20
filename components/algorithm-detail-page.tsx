@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import {
   ArrowLeft,
   Play,
@@ -28,12 +28,14 @@ import { MermaidAnimation } from "@/components/mermaid-animation"
 import { ReactFlowAnimation } from "@/components/react-flow-animation"
 import { D3Animation } from "@/components/d3-animation"
 import { ThreeAnimation } from "@/components/three-animation"
+import { LocalStorageManager } from "@/lib/local-storage-manager"
 import { AIExplanationModal } from "@/components/ai-explanation-modal"
 import { ExportModal } from "@/components/export-modal"
 import Link from "next/link"
 
 interface Algorithm {
   id: string
+  problemId?: number
   title: string
   description: string
   difficulty: string
@@ -44,6 +46,7 @@ interface Algorithm {
   estimatedTime: string
   realWorldUse: string
   problemStatement: string
+  lastModified?: number
   examples: Array<{
     input: string
     output: string
@@ -52,7 +55,7 @@ interface Algorithm {
   analogy: {
     title: string
     content: string
-  }
+  } | undefined
   keyInsights: string[]
   realWorldApplications: Array<{
     domain: string
@@ -64,14 +67,14 @@ interface Algorithm {
     lesson: string
     application: string
   }>
-  implementations: {
-    bruteForce: {
+  implementations?: {
+    bruteForce?: {
       title: string
       timeComplexity: string
       spaceComplexity: string
       code: string
     }
-    optimized: {
+    optimized?: {
       title: string
       timeComplexity: string
       spaceComplexity: string
@@ -84,19 +87,28 @@ interface Algorithm {
     description: string
     data: any
   }>
+  animation?: {
+    interactiveData: any
+  }
+  metadata?: {
+    tags?: string[]
+    acceptanceRate?: string
+    frequency?: number
+  }
 }
 
 interface AlgorithmDetailPageProps {
   algorithm: Algorithm
 }
 
-export function AlgorithmDetailPage({ algorithm }: AlgorithmDetailPageProps) {
+export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDetailPageProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [showAIModal, setShowAIModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
   const [animationType, setAnimationType] = useState<"mermaid" | "flow" | "d3" | "three">("mermaid")
+  const [algorithm, setAlgorithm] = useState(serverAlgorithm)
 
   const aiQuestions = [
     {
@@ -125,6 +137,36 @@ export function AlgorithmDetailPage({ algorithm }: AlgorithmDetailPageProps) {
       context: "Production systems and performance considerations",
     },
   ]
+
+  // Check localStorage for updated algorithm data
+  React.useEffect(() => {
+    const checkLocalStorage = () => {
+      try {
+        // Try to load by algorithm ID first
+        let localAlgorithm = LocalStorageManager.loadAlgorithm(serverAlgorithm.id)
+
+        // If not found by ID, try by problem ID
+        if (!localAlgorithm && serverAlgorithm.problemId) {
+          localAlgorithm = LocalStorageManager.loadAlgorithmByProblemId(serverAlgorithm.problemId)
+        }
+
+        // Update if we found a more recent version
+        if (localAlgorithm) {
+          const localLastModified = (localAlgorithm as any).lastModified || 0
+          const serverLastModified = serverAlgorithm.lastModified || 0
+
+          if (localLastModified > serverLastModified) {
+            console.log('📦 Loading updated algorithm from localStorage:', localAlgorithm.title)
+            setAlgorithm(localAlgorithm as any)
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to check localStorage for algorithm updates:', error)
+      }
+    }
+
+    checkLocalStorage()
+  }, [serverAlgorithm.id, serverAlgorithm.problemId, serverAlgorithm.lastModified])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -164,7 +206,7 @@ export function AlgorithmDetailPage({ algorithm }: AlgorithmDetailPageProps) {
               <Link href="/">
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Discovery
+                  Back to Discovery 222222
                 </Button>
               </Link>
               <Separator orientation="vertical" className="h-6" />
@@ -383,13 +425,13 @@ export function AlgorithmDetailPage({ algorithm }: AlgorithmDetailPageProps) {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Brain className="h-5 w-5" />
-                      {algorithm.analogy.title}
+                      {algorithm.analogy?.title}
                     </CardTitle>
                     <CardDescription>Understanding through real-world comparison</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="prose prose-sm max-w-none">
-                      <p className="whitespace-pre-line leading-relaxed">{algorithm.analogy.content}</p>
+                      <p className="whitespace-pre-line leading-relaxed">{algorithm.analogy?.content}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -397,35 +439,39 @@ export function AlgorithmDetailPage({ algorithm }: AlgorithmDetailPageProps) {
 
               <TabsContent value="code" className="space-y-6">
                 <div className="grid gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{algorithm.implementations.bruteForce.title}</CardTitle>
-                      <CardDescription>
-                        Time: {algorithm.implementations.bruteForce.timeComplexity} • Space:{" "}
-                        {algorithm.implementations.bruteForce.spaceComplexity}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-                        <code>{algorithm.implementations.bruteForce.code}</code>
-                      </pre>
-                    </CardContent>
-                  </Card>
+                  {/* Brute Force Implementation - Only show if it exists */}
+                  {algorithm.implementations?.bruteForce && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>{algorithm.implementations.bruteForce?.title || 'Brute Force Approach'}</CardTitle>
+                        <CardDescription>
+                          Time: {algorithm.implementations.bruteForce?.timeComplexity || 'O(n²)'} • Space:{" "}
+                          {algorithm.implementations.bruteForce?.spaceComplexity || 'O(1)'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+                          <code>{algorithm.implementations.bruteForce?.code || '// Brute force implementation not available'}</code>
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
 
+                  {/* Optimized Implementation */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-5 w-5 text-secondary" />
-                        {algorithm.implementations.optimized.title}
+                        {algorithm.implementations?.optimized?.title || 'Optimized Solution'}
                       </CardTitle>
                       <CardDescription>
-                        Time: {algorithm.implementations.optimized.timeComplexity} • Space:{" "}
-                        {algorithm.implementations.optimized.spaceComplexity}
+                        Time: {algorithm.implementations?.optimized?.timeComplexity || 'O(n)'} • Space:{" "}
+                        {algorithm.implementations?.optimized?.spaceComplexity || 'O(1)'}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-                        <code>{algorithm.implementations.optimized.code}</code>
+                        <code>{algorithm.implementations?.optimized?.code || '// Implementation code not available'}</code>
                       </pre>
                     </CardContent>
                   </Card>

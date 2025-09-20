@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Zap, Clock, MemoryStick } from "lucide-react"
+import { alphabetServer, createTypingAnimation, createWaveAnimation, create3DAnimation, createWordAnimation } from "@/lib/alphabet-server"
 
 interface AnimationStep {
   step: number
@@ -41,6 +42,9 @@ export function MermaidAnimation({
     currentOperations: 0,
     totalOperations: 0
   })
+  const [textAnimations, setTextAnimations] = useState<Map<string, any>>(new Map())
+  const [currentTextAnimation, setCurrentTextAnimation] = useState<string | null>(null)
+  const [textAnimationProgress, setTextAnimationProgress] = useState(0)
   const mermaidRef = useRef<HTMLDivElement>(null)
   const animationTimeoutRef = useRef<NodeJS.Timeout>()
 
@@ -49,6 +53,9 @@ export function MermaidAnimation({
     try {
       if (algorithmId === "two-sum") {
         return generateTwoSumDiagram(step)
+      }
+      if (algorithmId === "add-two-numbers") {
+        return generateAddTwoNumbersDiagram(step)
       }
       // Add more algorithms here
       return generateDefaultDiagram(step)
@@ -214,7 +221,7 @@ export function MermaidAnimation({
     class Formula formula`
 
     // Add conditional styling based on state
-    array.forEach((_, index) => {
+    array.forEach((_: any, index: number) => {
       if (index === currentIndex) {
         diagram += `
     class Arr${index} arrActive`
@@ -228,6 +235,158 @@ export function MermaidAnimation({
         diagram += `
     class Arr${index} arrDefault`
       }
+    })
+
+    return diagram
+  }
+
+  const generateAddTwoNumbersDiagram = (step: AnimationStep) => {
+    const { list1 = [], list2 = [], current1 = 0, current2 = 0, carry = 0, result = [], step: currentStep = 0 } = step.data || {}
+
+    // Update performance metrics
+    setPerformanceMetrics({
+      timeComplexity: "O(max(m,n))",
+      spaceComplexity: "O(max(m,n))",
+      currentOperations: currentStep + 1,
+      totalOperations: Math.max(list1.length, list2.length) + 1
+    })
+
+    let diagram = `flowchart TD
+    %% Algorithm Header
+    subgraph Algorithm["🔢 Add Two Numbers Algorithm"]
+        direction LR
+        Status["📊 Progress<br/>Step ${currentStep + 1}"]
+        Carry["🎯 Carry: ${carry}"]
+    end
+
+    %% Input Lists Section
+    subgraph Input1["📝 First Number (Reversed)"]
+        direction LR`
+
+    // Generate first linked list nodes
+    list1.forEach((value: number, index: number) => {
+      const isActive = index === current1
+      const style = isActive ? "fill:#f59e0b,stroke:#d97706,color:#fff,stroke-width:3px" : "fill:#f3f4f6,stroke:#d1d5db,color:#374151"
+      diagram += `
+        L1_${index}["${value}<br/>pos:${index}"]:::node${isActive ? 'Active' : 'Default'}`
+    })
+
+    diagram += `
+    end
+
+    subgraph Input2["📝 Second Number (Reversed)"]
+        direction LR`
+
+    // Generate second linked list nodes
+    list2.forEach((value: number, index: number) => {
+      const isActive = index === current2
+      const style = isActive ? "fill:#f59e0b,stroke:#d97706,color:#fff,stroke-width:3px" : "fill:#f3f4f6,stroke:#d1d5db,color:#374151"
+      diagram += `
+        L2_${index}["${value}<br/>pos:${index}"]:::node${isActive ? 'Active' : 'Default'}`
+    })
+
+    diagram += `
+    end
+
+    %% Result Section
+    subgraph Result["✅ Result"]
+        direction LR`
+
+    // Generate result linked list nodes
+    result.forEach((value: number, index: number) => {
+      diagram += `
+        R_${index}["${value}"]:::resultNode`
+    })
+
+    diagram += `
+    end
+
+    %% Calculation Section
+    subgraph Calculation["🧮 Current Calculation"]
+        direction TB`
+
+    const val1 = current1 < list1.length ? list1[current1] : 0
+    const val2 = current2 < list2.length ? list2[current2] : 0
+    const sum = val1 + val2 + carry
+    const digit = sum % 10
+    const newCarry = Math.floor(sum / 10)
+
+    diagram += `
+        Calc["${val1} + ${val2} + ${carry} = ${sum}"]
+        Digit["Digit: ${digit}"]
+        NewCarry["New Carry: ${newCarry}"]
+        Calc --> Digit
+        Digit --> NewCarry`
+
+    diagram += `
+    end
+
+    %% Connections
+    Algorithm --> Input1
+    Algorithm --> Input2
+    Algorithm --> Result
+    Algorithm --> Calculation`
+
+    // Connect list nodes
+    for (let i = 0; i < list1.length - 1; i++) {
+      diagram += `
+    L1_${i} --> L1_${i + 1}`
+    }
+
+    for (let i = 0; i < list2.length - 1; i++) {
+      diagram += `
+    L2_${i} --> L2_${i + 1}`
+    }
+
+    for (let i = 0; i < result.length - 1; i++) {
+      diagram += `
+    R_${i} --> R_${i + 1}`
+    }
+
+    // Connect active nodes to calculation
+    if (current1 < list1.length) {
+      diagram += `
+    L1_${current1} --> Calculation`
+    }
+    if (current2 < list2.length) {
+      diagram += `
+    L2_${current2} --> Calculation`
+    }
+
+    if (result.length > 0) {
+      diagram += `
+    Calculation --> R_${result.length - 1}`
+    }
+
+    // Styles
+    diagram += `
+
+    %% Node Styles
+    classDef nodeDefault fill:#f3f4f6,stroke:#d1d5db,color:#374151,stroke-width:2px
+    classDef nodeActive fill:#f59e0b,stroke:#d97706,color:#fff,stroke-width:3px,animation:pulse 1s infinite
+    classDef resultNode fill:#22c55e,stroke:#16a34a,color:#fff,stroke-width:2px
+    classDef header fill:#3b82f6,stroke:#2563eb,color:#fff,stroke-width:2px,font-weight:bold
+    classDef calculation fill:#fbbf24,stroke:#f59e0b,color:#92400e,stroke-width:2px,font-weight:bold
+
+    %% Apply Styles
+    class Algorithm header
+    class Status,Carry header
+    class Calculation calculation`
+
+    // Apply node styles
+    list1.forEach((_: any, index: number) => {
+      diagram += `
+    class L1_${index} ${index === current1 ? 'nodeActive' : 'nodeDefault'}`
+    })
+
+    list2.forEach((_: any, index: number) => {
+      diagram += `
+    class L2_${index} ${index === current2 ? 'nodeActive' : 'nodeDefault'}`
+    })
+
+    result.forEach((_: any, index: number) => {
+      diagram += `
+    class R_${index} resultNode`
     })
 
     return diagram
@@ -407,6 +566,221 @@ export function MermaidAnimation({
     }
   }, [mermaidContent])
 
+  // ============================================================================
+  // 🎭 ADVANCED TEXT ANIMATION METHODS
+  // ============================================================================
+
+  /**
+   * Create text animation for Mermaid diagrams
+   */
+  const createMermaidTextAnimation = async (text: string, type: 'typing' | 'wave' | '3d' | 'word' = 'typing') => {
+    let animation
+    switch (type) {
+      case 'typing':
+        animation = createTypingAnimation(text, {
+          duration: 50,
+          stagger: 80,
+          easing: 'steps(1)'
+        })
+        break
+      case 'wave':
+        animation = createWaveAnimation(text, {
+          duration: 600,
+          stagger: 100,
+          easing: 'easeInOutSine'
+        })
+        break
+      case '3d':
+        animation = create3DAnimation(text, {
+          duration: 1000,
+          stagger: 150,
+          easing: 'easeOutBack'
+        })
+        break
+      case 'word':
+        animation = createWordAnimation(text, {
+          duration: 700,
+          stagger: 200,
+          easing: 'easeInOutQuad'
+        })
+        break
+    }
+
+    // Add Mermaid-specific execution logic
+    animation.onProgress = (progress: number) => {
+      setTextAnimationProgress(progress)
+    }
+
+    animation.onComplete = () => {
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(100)
+    }
+
+    setTextAnimations(prev => new Map(prev.set(animation.id, animation)))
+    setCurrentTextAnimation(animation.id)
+
+    // Execute animation with Mermaid-specific rendering
+    const result = await alphabetServer.executeAnimation(animation.id, ['mermaid'])
+
+    // Update Mermaid diagram with animated text
+    if (mermaidRef.current) {
+      const container = mermaidRef.current
+      const textElements = animation.elements
+
+      // Create animated text overlay
+      textElements.forEach((element, index) => {
+        setTimeout(() => {
+          const textNode = document.createElement('div')
+          textNode.id = element.id
+          textNode.className = 'mermaid-text-element'
+          textNode.style.cssText = `
+            position: absolute;
+            left: ${element.position.x}px;
+            top: ${element.position.y}px;
+            font-size: ${element.style.fontSize}px;
+            font-weight: ${element.style.fontWeight};
+            color: ${element.style.color};
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+          `
+          textNode.textContent = element.character
+
+          container.appendChild(textNode)
+
+          // Animate element
+          requestAnimationFrame(() => {
+            textNode.style.opacity = '1'
+            if (animation.config.transform?.scale) {
+              textNode.style.transform = `scale(${animation.config.transform.scale})`
+            }
+          })
+        }, index * (animation.config.stagger || 100))
+      })
+    }
+
+    return result
+  }
+
+  /**
+   * Enhanced step information with text animations
+   */
+  const getEnhancedStepInfo = (step: AnimationStep) => {
+    return {
+      title: step.title,
+      description: step.description,
+      animatedTitle: createMermaidTextAnimation(step.title, 'wave'),
+      animatedDescription: createMermaidTextAnimation(step.description, 'typing')
+    }
+  }
+
+  /**
+   * Create complex text sequence for algorithm explanation
+   */
+  const createAlgorithmTextSequence = async (algorithmSteps: string[]) => {
+    const sequenceId = `sequence-${Date.now()}`
+    const animations: any[] = []
+
+    for (let i = 0; i < algorithmSteps.length; i++) {
+      const step = algorithmSteps[i]
+      const animationType = i % 2 === 0 ? 'typing' : 'wave'
+
+      // Create animation without executing immediately
+      let animation
+      switch (animationType) {
+        case 'typing':
+          animation = createTypingAnimation(step, { duration: 50, stagger: 80, easing: 'steps(1)' })
+          break
+        case 'wave':
+          animation = createWaveAnimation(step, { duration: 600, stagger: 100, easing: 'easeInOutSine' })
+          break
+        default:
+          animation = createTypingAnimation(step)
+      }
+
+      // Add Mermaid-specific execution logic
+      animation.onProgress = (progress: number) => {
+        setTextAnimationProgress(progress)
+      }
+
+      animation.onComplete = () => {
+        setCurrentTextAnimation(null)
+        setTextAnimationProgress(100)
+      }
+
+      // Add sequential timing
+      if (i > 0 && animation.config) {
+        animation.config.delay = i * 2000 // 2 second delay between steps
+      }
+
+      // Execute the animation
+      await alphabetServer.executeAnimation(animation.id, ['mermaid'])
+
+      animations.push(animation)
+    }
+
+    setTextAnimations(prev => new Map(prev.set(sequenceId, animations)))
+    return sequenceId
+  }
+
+  /**
+   * Mermaid-specific text animation renderer
+   */
+  const renderMermaidTextAnimation = (animationId: string) => {
+    const animation = textAnimations.get(animationId)
+    if (!animation || !mermaidRef.current) return
+
+    const container = mermaidRef.current
+
+    // Clear previous text elements
+    const existingElements = container.querySelectorAll('.mermaid-text-element')
+    existingElements.forEach(el => el.remove())
+
+    // Render new text elements
+    animation.elements.forEach((element: any) => {
+      const textNode = document.createElement('div')
+      textNode.id = `mermaid-${element.id}`
+      textNode.className = 'mermaid-text-element'
+      textNode.style.cssText = `
+        position: absolute;
+        left: ${element.position.x}px;
+        top: ${element.position.y}px;
+        font-size: ${element.style.fontSize}px;
+        font-weight: ${element.style.fontWeight};
+        color: ${element.style.color};
+        opacity: ${element.isVisible ? 1 : 0};
+        transform: ${element.style.transform || 'none'};
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        z-index: 1000;
+        text-shadow: ${element.style.textShadow || 'none'};
+      `
+      textNode.textContent = element.character
+
+      container.appendChild(textNode)
+    })
+  }
+
+  /**
+   * Stop current text animation
+   */
+  const stopTextAnimation = () => {
+    if (currentTextAnimation) {
+      alphabetServer.stopAnimation(currentTextAnimation)
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(0)
+    }
+  }
+
+  /**
+   * Get text animation performance metrics
+   */
+  const getTextAnimationMetrics = () => {
+    if (!currentTextAnimation) return null
+    return alphabetServer.getPerformanceMetrics(currentTextAnimation)
+  }
+
   const canGoPrevious = currentStep > 0
   const canGoNext = currentStep < steps.length - 1
   const progress = ((currentStep + 1) / steps.length) * 100
@@ -567,6 +941,103 @@ export function MermaidAnimation({
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Advanced Text Animation Controls */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🎭</div>
+            <div>
+              <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-1">Text Animations</h4>
+              <p className="text-sm text-purple-700 dark:text-purple-300">
+                Advanced character and word animations powered by Alphabet Server
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createMermaidTextAnimation(steps[currentStep]?.title || 'Sample Text', 'typing')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              ⌨️ Type
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createMermaidTextAnimation(steps[currentStep]?.title || 'Sample Text', 'wave')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🌊 Wave
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createMermaidTextAnimation(steps[currentStep]?.title || 'Sample Text', '3d')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🎲 3D
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createMermaidTextAnimation(steps[currentStep]?.title || 'Sample Text', 'word')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              📝 Word
+            </Button>
+            {currentTextAnimation && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={stopTextAnimation}
+                className="hover:scale-105 transition-all duration-200"
+              >
+                ⏹️ Stop
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Text Animation Progress */}
+        {currentTextAnimation && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-purple-700 dark:text-purple-300">Text Animation Progress</span>
+              <span className="font-medium text-purple-800 dark:text-purple-200">{Math.round(textAnimationProgress)}%</span>
+            </div>
+            <Progress value={textAnimationProgress} className="h-2" />
+          </div>
+        )}
+
+        {/* Text Animation Metrics */}
+        {getTextAnimationMetrics() && (
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-purple-600 dark:text-purple-400">Duration</div>
+              <div className="text-sm font-medium">{getTextAnimationMetrics()?.duration || 0}ms</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-purple-600 dark:text-purple-400">Elements</div>
+              <div className="text-sm font-medium">{currentTextAnimation ? textAnimations.get(currentTextAnimation)?.elements?.length || 0 : 0}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-purple-600 dark:text-purple-400">FPS</div>
+              <div className="text-sm font-medium">{getTextAnimationMetrics()?.fps || 60}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-purple-600 dark:text-purple-400">Memory</div>
+              <div className="text-sm font-medium">{getTextAnimationMetrics()?.memoryUsage || 0}MB</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Enhanced Step Indicator */}

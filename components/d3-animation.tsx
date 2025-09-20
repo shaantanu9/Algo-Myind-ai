@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, Zap, Clock, MemoryStick, ChevronRight, Play, Pause, RotateCcw, BarChart3, TrendingUp, Activity, MousePointer, ZoomIn } from "lucide-react"
 import * as d3 from "d3"
+import { alphabetServer, createTypingAnimation, createWaveAnimation, create3DAnimation, createWordAnimation } from "@/lib/alphabet-server"
 
 interface AnimationStep {
   step: number
@@ -43,13 +44,90 @@ export function D3Animation({
     currentOperations: 0,
     totalOperations: 0
   })
+  const [textAnimations, setTextAnimations] = useState<Map<string, any>>(new Map())
+  const [currentTextAnimation, setCurrentTextAnimation] = useState<string | null>(null)
+  const [textAnimationProgress, setTextAnimationProgress] = useState(0)
+  const [d3TextElements, setD3TextElements] = useState<Map<string, any>>(new Map())
 
   const generateD3Visualization = useCallback((step: AnimationStep, algorithmId: string) => {
-    if (algorithmId === "two-sum") {
+    // Enhanced algorithm detection for AI-generated JSON
+    if (algorithmId === "two-sum" || (step.data?.array && step.data?.target)) {
       return generateTwoSumD3(step)
+    }
+    if (algorithmId === "container-with-most-water" || step.data?.array?.length > 0) {
+      return generateContainerWithMostWaterD3(step)
+    }
+    if (algorithmId === "shortest-palindrome" || step.data?.original !== undefined) {
+      return generateStringManipulationD3(step)
+    }
+    if (algorithmId === "reverse-integer" || step.data?.original !== undefined) {
+      return generateMathD3(step)
     }
     return generateDefaultD3(step)
   }, [])
+
+  const generateContainerWithMostWaterD3 = (step: AnimationStep) => {
+    const { array = [], left = 0, right = array.length - 1, currentArea = 0, maxArea = 0 } = step.data || {}
+
+    return {
+      array: array.map((height: number, index: number) => ({
+        id: `bar-${index}`,
+        height,
+        index,
+        x: index * 40 + 50,
+        y: 300,
+        isActive: index === left || index === right,
+        isInRange: index >= left && index <= right,
+        fill: index === left || index === right ? '#3b82f6' : index >= left && index <= right ? '#10b981' : '#6b7280'
+      })),
+      pointers: [
+        { id: 'left', x: left * 40 + 50 + 20, y: 280, label: 'Left', color: '#3b82f6' },
+        { id: 'right', x: right * 40 + 50 + 20, y: 280, label: 'Right', color: '#3b82f6' }
+      ],
+      currentArea,
+      maxArea,
+      step: step.step
+    }
+  }
+
+  const generateStringManipulationD3 = (step: AnimationStep) => {
+    const { original = '', reversed = '', currentIndex = 0 } = step.data || {}
+
+    return {
+      original: original.split('').map((char: string, index: number) => ({
+        id: `orig-${index}`,
+        char,
+        index,
+        x: index * 30 + 50,
+        y: 150,
+        isActive: index === currentIndex,
+        color: index === currentIndex ? '#3b82f6' : '#374151'
+      })),
+      reversed: reversed.split('').map((char: string, index: number) => ({
+        id: `rev-${index}`,
+        char,
+        index,
+        x: index * 30 + 50,
+        y: 250,
+        isActive: index === currentIndex,
+        color: index === currentIndex ? '#10b981' : '#374151'
+      })),
+      step: step.step
+    }
+  }
+
+  const generateMathD3 = (step: AnimationStep) => {
+    const { original = 0, reversed = 0, digit, remainder } = step.data || {}
+
+    return {
+      numbers: [
+        { id: 'original', value: original, x: 200, y: 150, label: 'Original', color: '#3b82f6' },
+        { id: 'reversed', value: reversed, x: 400, y: 150, label: 'Reversed', color: '#10b981' }
+      ],
+      currentDigit: digit ? { value: digit, x: 300, y: 200, label: 'Current Digit', color: '#f59e0b' } : null,
+      step: step.step
+    }
+  }
 
   const generateTwoSumD3 = (step: AnimationStep) => {
     const { array = [], target = 0, currentIndex = 0, hashMap = {}, complement, found, result } = step.data || {}
@@ -125,7 +203,20 @@ export function D3Animation({
     // Create main container group
     const mainGroup = svg.append("g").attr("class", "main-visualization")
 
-    if (data.array) {
+    // Handle different visualization types
+    if (data.lessHead || data.greaterHead || data.lessList || data.greaterList) {
+      // Linked List Partition visualization
+      renderLinkedListVisualization(svg, mainGroup, data)
+    } else if (data.array && data.pointers) {
+      // Container With Most Water visualization
+      renderContainerWithMostWater(svg, mainGroup, data)
+    } else if (data.original && data.reversed) {
+      // String manipulation visualization
+      renderStringManipulation(svg, mainGroup, data)
+    } else if (data.numbers) {
+      // Math visualization
+      renderMathVisualization(svg, mainGroup, data)
+    } else if (data.array) {
       // Enhanced Array Visualization with D3 data binding
       const arrayGroup = mainGroup.append("g").attr("class", "array-visualization")
 
@@ -513,9 +604,951 @@ export function D3Animation({
     return () => clearInterval(interval)
   }, [isPlaying, currentStep, steps.length, onStepChange, onPlayPause])
 
+  // ============================================================================
+  // 🎭 ADVANCED TEXT ANIMATION METHODS
+  // ============================================================================
+
+  /**
+   * Create text animation for D3 visualizations
+   */
+  const createD3TextAnimation = async (text: string, type: 'typing' | 'wave' | '3d' | 'word' = 'typing', position?: { x: number, y: number }) => {
+    let animation
+    switch (type) {
+      case 'typing':
+        animation = createTypingAnimation(text, {
+          duration: 50,
+          stagger: 80,
+          easing: 'steps(1)'
+        })
+        break
+      case 'wave':
+        animation = createWaveAnimation(text, {
+          duration: 600,
+          stagger: 100,
+          easing: 'easeInOutSine'
+        })
+        break
+      case '3d':
+        animation = create3DAnimation(text, {
+          duration: 1000,
+          stagger: 150,
+          easing: 'easeOutBack'
+        })
+        break
+      case 'word':
+        animation = createWordAnimation(text, {
+          duration: 700,
+          stagger: 200,
+          easing: 'easeInOutQuad'
+        })
+        break
+    }
+
+    // Add D3-specific execution logic
+    animation.onProgress = (progress: number) => {
+      setTextAnimationProgress(progress)
+    }
+
+    animation.onComplete = () => {
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(100)
+    }
+
+    setTextAnimations(prev => new Map(prev.set(animation.id, animation)))
+    setCurrentTextAnimation(animation.id)
+
+    // Execute animation with D3-specific rendering
+    const result = await alphabetServer.executeAnimation(animation.id, ['d3'])
+
+    // Update D3 visualization with animated text
+    if (svgRef.current) {
+      const svg = d3.select(svgRef.current)
+      const textElements = animation.elements
+      const basePosition = position || { x: 300, y: 200 }
+
+      // Create animated text elements in D3
+      const textGroup = svg.append("g")
+        .attr("class", "d3-text-animation")
+        .attr("transform", `translate(${basePosition.x}, ${basePosition.y})`)
+
+      textElements.forEach((element: any, index: number) => {
+        // Create text element
+        const textElement = textGroup.append("text")
+          .attr("class", "d3-animated-text")
+          .attr("x", index * 12)
+          .attr("y", 0)
+          .attr("fill", element.style?.color || "#3b82f6")
+          .attr("font-size", element.style?.fontSize || "16px")
+          .attr("font-weight", element.style?.fontWeight || "normal")
+          .attr("opacity", element.isVisible ? 1 : 0)
+          .attr("text-anchor", "middle")
+          .text(element.character)
+
+        // Add glow effect if enabled
+        if (element.style?.textShadow) {
+          textElement.style("filter", "drop-shadow(0 0 4px rgba(59, 130, 246, 0.5))")
+        }
+
+        // Animate text element
+        textElement
+          .transition()
+          .delay(index * (animation.config.stagger || 100))
+          .duration(animation.config.duration || 500)
+          .attr("opacity", 1)
+          .attr("transform", element.style?.transform || "scale(1)")
+          .ease(d3.easeCubicInOut)
+
+        // Add wave effect for wave animations
+        if (type === 'wave') {
+          textElement
+            .transition()
+            .delay(index * (animation.config.stagger || 100) + 200)
+            .duration(400)
+            .attr("transform", `translate(0, ${Math.sin(index * 0.5) * 10}) scale(1.1)`)
+            .transition()
+            .delay(600)
+            .duration(400)
+            .attr("transform", "translate(0, 0) scale(1)")
+            .ease(d3.easeElasticOut)
+        }
+
+        // Add 3D effect for 3D animations
+        if (type === '3d') {
+          textElement
+            .transition()
+            .delay(index * (animation.config.stagger || 100))
+            .duration(800)
+            .attr("transform", `translateZ(-50px) rotateX(45deg) scale(0.5)`)
+            .style("filter", "drop-shadow(0 10px 20px rgba(59, 130, 246, 0.3))")
+            .transition()
+            .delay(400)
+            .duration(600)
+            .attr("transform", "translateZ(0px) rotateX(0deg) scale(1)")
+            .style("filter", "none")
+            .ease(d3.easeBackOut)
+        }
+      })
+
+      setD3TextElements(prev => new Map(prev.set(animation.id, textGroup)))
+    }
+
+    return result
+  }
+
+  /**
+   * Create animated data labels for D3 charts
+   */
+  const createAnimatedDataLabels = async (data: any[], positions: Array<{ x: number, y: number }>) => {
+    const labelAnimations: any[] = []
+
+    for (let i = 0; i < data.length && i < positions.length; i++) {
+      const item = data[i]
+      const position = positions[i]
+      const labelText = item.value?.toString() || item.label || item.toString()
+
+      const animation = createTypingAnimation(labelText, {
+        duration: 100,
+        stagger: 30,
+        easing: 'easeOutQuad'
+      })
+
+      // Add D3-specific execution logic
+      animation.onProgress = (progress: number) => {
+        setTextAnimationProgress(progress)
+      }
+
+      // Execute animation
+      await alphabetServer.executeAnimation(animation.id, ['d3'])
+
+      // Create D3 label
+      if (svgRef.current) {
+        const svg = d3.select(svgRef.current)
+        const textElements = animation.elements
+
+        textElements.forEach((element: any, index: number) => {
+          svg.append("text")
+            .attr("class", "d3-data-label")
+            .attr("x", position.x + index * 8)
+            .attr("y", position.y)
+            .attr("fill", "#374151")
+            .attr("font-size", "12px")
+            .attr("font-weight", "600")
+            .attr("text-anchor", "middle")
+            .attr("opacity", 0)
+            .text(element.character)
+            .transition()
+            .delay(index * 30 + i * 200)
+            .duration(300)
+            .attr("opacity", 1)
+            .attr("transform", `translate(0, ${Math.sin(index * 0.3) * 3})`)
+            .transition()
+            .delay(500)
+            .duration(200)
+            .attr("transform", "translate(0, 0)")
+            .ease(d3.easeBounceOut)
+        })
+      }
+
+      labelAnimations.push(animation)
+
+      // Brief pause between labels
+      if (i < data.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 300))
+      }
+    }
+
+    const sequenceId = `data-labels-${Date.now()}`
+    setTextAnimations(prev => new Map(prev.set(sequenceId, labelAnimations)))
+    return sequenceId
+  }
+
+  /**
+   * Create animated axis labels
+   */
+  const createAnimatedAxisLabels = async (labels: string[], axis: 'x' | 'y', positions: number[]) => {
+    const axisAnimations: any[] = []
+
+    for (let i = 0; i < labels.length && i < positions.length; i++) {
+      const label = labels[i]
+      const position = positions[i]
+
+      const animation = createTypingAnimation(label, {
+        duration: 80,
+        stagger: 40,
+        easing: 'easeOutBack'
+      })
+
+      // Execute animation
+      await alphabetServer.executeAnimation(animation.id, ['d3'])
+
+      // Create D3 axis label
+      if (svgRef.current) {
+        const svg = d3.select(svgRef.current)
+        const textElements = animation.elements
+
+        textElements.forEach((element: any, index: number) => {
+          const textElement = svg.append("text")
+            .attr("class", "d3-axis-label")
+            .attr("fill", "#6b7280")
+            .attr("font-size", "11px")
+            .attr("font-weight", "500")
+            .attr("text-anchor", axis === 'x' ? "middle" : "end")
+            .attr("opacity", 0)
+            .text(element.character)
+
+          if (axis === 'x') {
+            textElement
+              .attr("x", position)
+              .attr("y", 420)
+              .attr("transform", `translate(${index * 6}, 0)`)
+          } else {
+            textElement
+              .attr("x", 60)
+              .attr("y", position)
+              .attr("transform", `translate(0, ${index * 4})`)
+          }
+
+          textElement
+            .transition()
+            .delay(index * 40 + i * 100)
+            .duration(400)
+            .attr("opacity", 1)
+            .attr("transform", axis === 'x' ? `translate(${index * 6}, ${Math.sin(index * 0.2) * 2})` : `translate(${Math.sin(index * 0.2) * 2}, ${index * 4})`)
+            .transition()
+            .delay(500)
+            .duration(300)
+            .attr("transform", axis === 'x' ? `translate(${index * 6}, 0)` : `translate(0, ${index * 4})`)
+            .ease(d3.easeElasticOut)
+        })
+      }
+
+      axisAnimations.push(animation)
+    }
+
+    const sequenceId = `axis-labels-${Date.now()}`
+    setTextAnimations(prev => new Map(prev.set(sequenceId, axisAnimations)))
+    return sequenceId
+  }
+
+  /**
+   * Create complex D3 narrative with multiple text animations
+   */
+  const createD3Narrative = async (narrativeSteps: Array<{ text: string, position?: { x: number, y: number }, delay?: number }>) => {
+    const narrativeId = `d3-narrative-${Date.now()}`
+    const animations: any[] = []
+
+    for (let i = 0; i < narrativeSteps.length; i++) {
+      const step = narrativeSteps[i]
+      const animationType = i % 3 === 0 ? 'typing' : i % 3 === 1 ? 'wave' : 'word'
+
+      // Create animation without executing immediately
+      let animation
+      switch (animationType) {
+        case 'typing':
+          animation = createTypingAnimation(step.text, { duration: 50, stagger: 80, easing: 'steps(1)' })
+          break
+        case 'wave':
+          animation = createWaveAnimation(step.text, { duration: 600, stagger: 100, easing: 'easeInOutSine' })
+          break
+        case 'word':
+          animation = createWordAnimation(step.text, { duration: 700, stagger: 200, easing: 'easeInOutQuad' })
+          break
+        default:
+          animation = createTypingAnimation(step.text)
+      }
+
+      // Add delays between narrative steps
+      if (step.delay || i > 0) {
+        const delay = step.delay || 2000
+        if (animation.config) {
+          animation.config.delay = i * delay
+        }
+      }
+
+      // Execute the animation
+      await alphabetServer.executeAnimation(animation.id, ['d3'])
+
+      animations.push(animation)
+
+      // Brief pause between steps
+      if (i < narrativeSteps.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, step.delay || 2000))
+      }
+    }
+
+    setTextAnimations(prev => new Map(prev.set(narrativeId, animations)))
+    return narrativeId
+  }
+
+  /**
+   * Stop current text animation and clean up
+   */
+  const stopD3TextAnimation = () => {
+    if (currentTextAnimation) {
+      alphabetServer.stopAnimation(currentTextAnimation)
+
+      // Remove animated text elements
+      if (svgRef.current) {
+        const svg = d3.select(svgRef.current)
+        svg.selectAll(".d3-text-animation").remove()
+        svg.selectAll(".d3-animated-text").remove()
+        svg.selectAll(".d3-data-label").remove()
+        svg.selectAll(".d3-axis-label").remove()
+      }
+
+      setCurrentTextAnimation(null)
+      setTextAnimationProgress(0)
+    }
+  }
+
+  /**
+   * Get text animation performance metrics
+   */
+  const getD3TextMetrics = () => {
+    if (!currentTextAnimation) return null
+    return alphabetServer.getPerformanceMetrics(currentTextAnimation)
+  }
+
   const canGoPrevious = currentStep > 0
   const canGoNext = currentStep < steps.length - 1
   const progress = ((currentStep + 1) / steps.length) * 100
+
+  // Container With Most Water rendering function
+  const renderContainerWithMostWater = (svg: any, mainGroup: any, data: any) => {
+    const arrayGroup = mainGroup.append("g").attr("class", "container-visualization")
+
+    // Array bars
+    const bars = arrayGroup.selectAll(".bar")
+      .data(data.array)
+      .enter()
+      .append("g")
+      .attr("class", "bar")
+      .attr("transform", (d: any) => `translate(${d.x}, ${d.y - d.height * 3})`)
+
+    bars.append("rect")
+      .attr("width", 30)
+      .attr("height", (d: any) => d.height * 3)
+      .attr("fill", (d: any) => d.fill)
+      .attr("stroke", (d: any) => d.isActive ? "#1f2937" : "#d1d5db")
+      .attr("stroke-width", 2)
+      .attr("rx", 3)
+      .transition()
+      .duration(800)
+      .ease(d3.easeCubicInOut)
+
+    bars.append("text")
+      .attr("x", 15)
+      .attr("y", (d: any) => -d.height * 3 - 5)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#374151")
+      .attr("font-size", "12px")
+      .attr("font-weight", "600")
+      .text((d: any) => d.height)
+
+    // Pointers
+    data.pointers.forEach((pointer: any) => {
+      arrayGroup.append("circle")
+        .attr("cx", pointer.x)
+        .attr("cy", pointer.y)
+        .attr("r", 8)
+        .attr("fill", pointer.color)
+        .attr("stroke", "#ffffff")
+        .attr("stroke-width", 2)
+        .style("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.2))")
+
+      arrayGroup.append("text")
+        .attr("x", pointer.x)
+        .attr("y", pointer.y - 15)
+        .attr("text-anchor", "middle")
+        .attr("fill", pointer.color)
+        .attr("font-size", "12px")
+        .attr("font-weight", "600")
+        .text(pointer.label)
+    })
+
+    // Areas display
+    const infoGroup = mainGroup.append("g").attr("class", "info-display")
+    infoGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 30)
+      .attr("fill", "#059669")
+      .attr("font-size", "14px")
+      .attr("font-weight", "600")
+      .text(`Current Area: ${data.currentArea}`)
+
+    infoGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 50)
+      .attr("fill", "#dc2626")
+      .attr("font-size", "14px")
+      .attr("font-weight", "600")
+      .text(`Max Area: ${data.maxArea}`)
+  }
+
+  // Enhanced String manipulation rendering function for Shortest Palindrome
+  const renderStringManipulation = (svg: any, mainGroup: any, data: any) => {
+    const width = 700
+    const height = 400
+
+    // Clear background
+    mainGroup.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "#f8fafc")
+      .attr("stroke", "#e2e8f0")
+      .attr("stroke-width", 1)
+      .attr("rx", 8)
+
+    // Algorithm title
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("Shortest Palindrome Algorithm")
+
+    // Step indicator
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 55)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "14px")
+      .text(`Step: Finding Palindromic Prefix`)
+
+    // Original string visualization
+    const originalGroup = mainGroup.append("g").attr("class", "original-string")
+    originalGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 100)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Original String:")
+
+    // Handle different data formats
+    let originalString = ""
+    let reversedString = ""
+    let currentIndex = 0
+
+    if (data.original && typeof data.original === 'string') {
+      originalString = data.original
+    } else if (data.original && Array.isArray(data.original)) {
+      originalString = data.original.map((char: any) => char.char || char).join('')
+    }
+
+    if (data.reversed && typeof data.reversed === 'string') {
+      reversedString = data.reversed
+    } else if (data.reversed && Array.isArray(data.reversed)) {
+      reversedString = data.reversed.map((char: any) => char.char || char).join('')
+    }
+
+    currentIndex = data.currentIndex || data.i || 0
+
+    // Original string characters
+    const originalChars = originalString.split('')
+    originalChars.forEach((char: string, index: number) => {
+      const isActive = index === currentIndex
+      const x = 100 + index * 35
+      const y = 140
+
+      // Character background
+      originalGroup.append("rect")
+        .attr("x", x - 15)
+        .attr("y", y - 20)
+        .attr("width", 30)
+        .attr("height", 35)
+        .attr("fill", isActive ? "#3b82f6" : "#ffffff")
+        .attr("stroke", isActive ? "#2563eb" : "#d1d5db")
+        .attr("stroke-width", 2)
+        .attr("rx", 6)
+        .style("filter", isActive ? "drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3))" : "none")
+
+      // Character text
+      originalGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", isActive ? "#ffffff" : "#374151")
+        .attr("font-size", "18px")
+        .attr("font-weight", "600")
+        .text(char)
+
+      // Index label
+      originalGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 30)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#6b7280")
+        .attr("font-size", "12px")
+        .text(`[${index}]`)
+    })
+
+    // Reversed string visualization
+    const reversedGroup = mainGroup.append("g").attr("class", "reversed-string")
+    reversedGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 200)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Reversed String:")
+
+    // Reversed string characters
+    const reversedChars = reversedString.split('')
+    reversedChars.forEach((char: string, index: number) => {
+      const isActive = index === currentIndex
+      const x = 100 + index * 35
+      const y = 240
+
+      // Character background
+      reversedGroup.append("rect")
+        .attr("x", x - 15)
+        .attr("y", y - 20)
+        .attr("width", 30)
+        .attr("height", 35)
+        .attr("fill", isActive ? "#10b981" : "#ffffff")
+        .attr("stroke", isActive ? "#059669" : "#d1d5db")
+        .attr("stroke-width", 2)
+        .attr("rx", 6)
+        .style("filter", isActive ? "drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3))" : "none")
+
+      // Character text
+      reversedGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", isActive ? "#ffffff" : "#374151")
+        .attr("font-size", "18px")
+        .attr("font-weight", "600")
+        .text(char)
+
+      // Index label
+      reversedGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 30)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#6b7280")
+        .attr("font-size", "12px")
+        .text(`[${index}]`)
+    })
+
+    // Comparison visualization
+    if (data.s_slice && data.reversed_slice) {
+      const comparisonGroup = mainGroup.append("g").attr("class", "comparison")
+
+      // S prefix
+      comparisonGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 320)
+        .attr("fill", "#374151")
+        .attr("font-size", "14px")
+        .attr("font-weight", "600")
+        .text("S Prefix:")
+
+      comparisonGroup.append("text")
+        .attr("x", 150)
+        .attr("y", 320)
+        .attr("fill", "#3b82f6")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text(`"${data.s_slice}"`)
+
+      // Reversed suffix
+      comparisonGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 345)
+        .attr("fill", "#374151")
+        .attr("font-size", "14px")
+        .attr("font-weight", "600")
+        .text("Reversed Suffix:")
+
+      comparisonGroup.append("text")
+        .attr("x", 180)
+        .attr("y", 345)
+        .attr("fill", "#10b981")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text(`"${data.reversed_slice}"`)
+
+      // Match result
+      const isMatch = data.s_slice === data.reversed_slice
+      comparisonGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 370)
+        .attr("fill", "#374151")
+        .attr("font-size", "14px")
+        .attr("font-weight", "600")
+        .text("Match:")
+
+      comparisonGroup.append("text")
+        .attr("x", 120)
+        .attr("y", 370)
+        .attr("fill", isMatch ? "#059669" : "#dc2626")
+        .attr("font-size", "16px")
+        .attr("font-weight", "700")
+        .text(isMatch ? "✅ MATCH" : "❌ NO MATCH")
+    }
+
+    // Result visualization
+    if (data.result) {
+      const resultGroup = mainGroup.append("g").attr("class", "result")
+      resultGroup.append("text")
+        .attr("x", width / 2)
+        .attr("y", 380)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#7c3aed")
+        .attr("font-size", "18px")
+        .attr("font-weight", "700")
+        .text(`Result: "${data.result}"`)
+    }
+  }
+
+  // Linked List visualization rendering function
+  const renderLinkedListVisualization = (svg: any, mainGroup: any, data: any) => {
+    const width = 700
+    const height = 400
+
+    // Clear background
+    mainGroup.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "#f8fafc")
+      .attr("stroke", "#e2e8f0")
+      .attr("stroke-width", 1)
+      .attr("rx", 8)
+
+    // Algorithm title
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("🔗 Linked List Partition Algorithm")
+
+    // Partition value display
+    const partitionValue = data.partitionValue || 3
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 55)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "14px")
+      .text(`Partition Value: ${partitionValue}`)
+
+    // Handle different data formats
+    let lessList = []
+    let greaterList = []
+    let finalList = []
+
+    if (data.lessList && Array.isArray(data.lessList)) {
+      lessList = data.lessList
+    }
+    if (data.greaterList && Array.isArray(data.greaterList)) {
+      greaterList = data.greaterList
+    }
+    if (data.finalList && Array.isArray(data.finalList)) {
+      finalList = data.finalList
+    }
+
+    // Less-than list visualization
+    const lessGroup = mainGroup.append("g").attr("class", "less-list")
+    lessGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 100)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Less Than:")
+
+    lessList.forEach((node: any, index: number) => {
+      const value = typeof node === 'object' ? (node.value || node.val || node) : node
+      const x = 100 + index * 80
+      const y = 140
+
+      // Node background
+      lessGroup.append("rect")
+        .attr("x", x - 20)
+        .attr("y", y - 20)
+        .attr("width", 40)
+        .attr("height", 40)
+        .attr("fill", "#10b981")
+        .attr("stroke", "#059669")
+        .attr("stroke-width", 2)
+        .attr("rx", 8)
+        .style("filter", "drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3))")
+
+      // Node value
+      lessGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#ffffff")
+        .attr("font-size", "18px")
+        .attr("font-weight", "600")
+        .text(value)
+
+      // Arrow to next node (if not last)
+      if (index < lessList.length - 1) {
+        lessGroup.append("path")
+          .attr("d", `M ${x + 20} ${y} L ${x + 60} ${y}`)
+          .attr("stroke", "#10b981")
+          .attr("stroke-width", 3)
+          .attr("marker-end", "url(#arrowhead-green)")
+      }
+    })
+
+    // Greater-than list visualization
+    const greaterGroup = mainGroup.append("g").attr("class", "greater-list")
+    greaterGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 220)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Greater Than:")
+
+    greaterList.forEach((node: any, index: number) => {
+      const value = typeof node === 'object' ? (node.value || node.val || node) : node
+      const x = 100 + index * 80
+      const y = 260
+
+      // Node background
+      greaterGroup.append("rect")
+        .attr("x", x - 20)
+        .attr("y", y - 20)
+        .attr("width", 40)
+        .attr("height", 40)
+        .attr("fill", "#ef4444")
+        .attr("stroke", "#dc2626")
+        .attr("stroke-width", 2)
+        .attr("rx", 8)
+        .style("filter", "drop-shadow(0 4px 8px rgba(239, 68, 68, 0.3))")
+
+      // Node value
+      greaterGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#ffffff")
+        .attr("font-size", "18px")
+        .attr("font-weight", "600")
+        .text(value)
+
+      // Arrow to next node (if not last)
+      if (index < greaterList.length - 1) {
+        greaterGroup.append("path")
+          .attr("d", `M ${x + 20} ${y} L ${x + 60} ${y}`)
+          .attr("stroke", "#ef4444")
+          .attr("stroke-width", 3)
+          .attr("marker-end", "url(#arrowhead-red)")
+      }
+    })
+
+    // Final merged list visualization
+    if (finalList.length > 0) {
+      const finalGroup = mainGroup.append("g").attr("class", "final-list")
+      finalGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 340)
+        .attr("fill", "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text("Final Result:")
+
+      finalList.forEach((value: any, index: number) => {
+        const actualValue = typeof value === 'object' ? (value.value || value.val || value) : value
+        const x = 150 + index * 70
+        const y = 380
+        const isLess = actualValue < partitionValue
+
+        // Node background
+        finalGroup.append("rect")
+          .attr("x", x - 20)
+          .attr("y", y - 20)
+          .attr("width", 40)
+          .attr("height", 40)
+          .attr("fill", isLess ? "#10b981" : "#ef4444")
+          .attr("stroke", isLess ? "#059669" : "#dc2626")
+          .attr("stroke-width", 2)
+          .attr("rx", 8)
+          .style("filter", "drop-shadow(0 4px 8px rgba(0,0,0,0.2))")
+
+        // Node value
+        finalGroup.append("text")
+          .attr("x", x)
+          .attr("y", y + 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "18px")
+          .attr("font-weight", "600")
+          .text(actualValue)
+
+        // Arrow to next node (if not last)
+        if (index < finalList.length - 1) {
+          finalGroup.append("path")
+            .attr("d", `M ${x + 20} ${y} L ${x + 50} ${y}`)
+            .attr("stroke", "#7c3aed")
+            .attr("stroke-width", 3)
+            .attr("marker-end", "url(#arrowhead-purple)")
+        }
+      })
+    }
+
+    // Add arrow markers
+    const defs = svg.append("defs")
+    defs.append("marker")
+      .attr("id", "arrowhead-green")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#10b981")
+
+    defs.append("marker")
+      .attr("id", "arrowhead-red")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#ef4444")
+
+    defs.append("marker")
+      .attr("id", "arrowhead-purple")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#7c3aed")
+  }
+
+  // Math visualization rendering function
+  const renderMathVisualization = (svg: any, mainGroup: any, data: any) => {
+    data.numbers.forEach((num: any) => {
+      const numGroup = mainGroup.append("g").attr("class", `number-${num.id}`)
+
+      numGroup.append("circle")
+        .attr("cx", num.x)
+        .attr("cy", num.y)
+        .attr("r", 40)
+        .attr("fill", num.color)
+        .attr("stroke", "#ffffff")
+        .attr("stroke-width", 3)
+        .style("filter", "drop-shadow(0 4px 8px rgba(0,0,0,0.1))")
+
+      numGroup.append("text")
+        .attr("x", num.x)
+        .attr("y", num.y - 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#ffffff")
+        .attr("font-size", "20px")
+        .attr("font-weight", "700")
+        .text(num.value)
+
+      numGroup.append("text")
+        .attr("x", num.x)
+        .attr("y", num.y + 60)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#374151")
+        .attr("font-size", "12px")
+        .attr("font-weight", "600")
+        .text(num.label)
+    })
+
+    if (data.currentDigit) {
+      const digit = data.currentDigit
+      const digitGroup = mainGroup.append("g").attr("class", "current-digit")
+
+      digitGroup.append("rect")
+        .attr("x", digit.x - 20)
+        .attr("y", digit.y - 15)
+        .attr("width", 40)
+        .attr("height", 30)
+        .attr("fill", digit.color)
+        .attr("stroke", "#ffffff")
+        .attr("stroke-width", 2)
+        .attr("rx", 6)
+        .style("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.1))")
+
+      digitGroup.append("text")
+        .attr("x", digit.x)
+        .attr("y", digit.y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#ffffff")
+        .attr("font-size", "16px")
+        .attr("font-weight", "700")
+        .text(digit.value)
+
+      digitGroup.append("text")
+        .attr("x", digit.x)
+        .attr("y", digit.y + 40)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#374151")
+        .attr("font-size", "11px")
+        .attr("font-weight", "600")
+        .text(digit.label)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -704,6 +1737,142 @@ export function D3Animation({
               📈 <strong>Real-time animations</strong> • 🎪 <strong>Celebration effects</strong> for solutions
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Advanced Text Animation Controls */}
+      <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-teal-200 dark:border-teal-700">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🎭</div>
+            <div>
+              <h4 className="font-semibold text-teal-800 dark:text-teal-200 mb-1">D3 Text Animations</h4>
+              <p className="text-sm text-teal-700 dark:text-teal-300">
+                Advanced character and word animations integrated with D3 visualizations
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createD3TextAnimation(steps[currentStep]?.title || 'Sample Text', 'typing')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              ⌨️ Type
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createD3TextAnimation(steps[currentStep]?.title || 'Sample Text', 'wave')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🌊 Wave
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createD3TextAnimation(steps[currentStep]?.title || 'Sample Text', '3d')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              🎲 3D
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createD3TextAnimation(steps[currentStep]?.title || 'Sample Text', 'word')}
+              className="hover:scale-105 transition-all duration-200"
+              disabled={!!currentTextAnimation}
+            >
+              📝 Word
+            </Button>
+            {currentTextAnimation && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={stopD3TextAnimation}
+                className="hover:scale-105 transition-all duration-200"
+              >
+                ⏹️ Stop
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Text Animation Progress */}
+        {currentTextAnimation && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-teal-700 dark:text-teal-300">Text Animation Progress</span>
+              <span className="font-medium text-teal-800 dark:text-teal-200">{Math.round(textAnimationProgress)}%</span>
+            </div>
+            <Progress value={textAnimationProgress} className="h-2" />
+          </div>
+        )}
+
+        {/* Text Animation Metrics */}
+        {getD3TextMetrics() && (
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-teal-600 dark:text-teal-400">Duration</div>
+              <div className="text-sm font-medium">{getD3TextMetrics()?.duration || 0}ms</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-teal-600 dark:text-teal-400">Elements</div>
+              <div className="text-sm font-medium">{currentTextAnimation ? textAnimations.get(currentTextAnimation)?.elements?.length || 0 : 0}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-teal-600 dark:text-teal-400">Groups</div>
+              <div className="text-sm font-medium">{d3TextElements.size}</div>
+            </div>
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded p-2 text-center">
+              <div className="text-xs text-teal-600 dark:text-teal-400">Memory</div>
+              <div className="text-sm font-medium">{getD3TextMetrics()?.memoryUsage || 0}MB</div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => createD3Narrative([
+              { text: "Step 1: Initialize", position: { x: 200, y: 150 }, delay: 1000 },
+              { text: "Step 2: Process", position: { x: 300, y: 200 }, delay: 1500 },
+              { text: "Step 3: Complete", position: { x: 400, y: 250 }, delay: 1000 }
+            ])}
+            className="text-xs"
+          >
+            📚 Narrative
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => createAnimatedDataLabels(
+              [10, 25, 15, 30, 20],
+              [{ x: 150, y: 180 }, { x: 250, y: 150 }, { x: 350, y: 200 }, { x: 450, y: 160 }, { x: 550, y: 190 }]
+            )}
+            className="text-xs"
+          >
+            📊 Data Labels
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => createAnimatedAxisLabels(
+              ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+              'x',
+              [150, 250, 350, 450, 550]
+            )}
+            className="text-xs"
+          >
+            📈 Axis Labels
+          </Button>
         </div>
       </div>
     </div>
