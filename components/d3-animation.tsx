@@ -8,6 +8,575 @@ import { ChevronLeft, Zap, Clock, MemoryStick, ChevronRight, Play, Pause, Rotate
 import * as d3 from "d3"
 import { alphabetServer, createTypingAnimation, createWaveAnimation, create3DAnimation, createWordAnimation } from "@/lib/alphabet-server"
 
+// Import animation generator for enhanced visualizations
+import { AlgorithmAnimationGenerator, createAnimationLibraries } from '@/lib/algorithm-animation-generator'
+
+// Import D3 atoms for enhanced animation execution
+import { executeFadeIn as d3FadeIn, executeFadeOut as d3FadeOut, executeHighlight as d3Highlight, executeMove as d3Move, executeScale as d3Scale, executeRotate as d3Rotate, executeGlow as d3Glow } from '@/lib/animation-libraries/d3-atoms'
+
+// Enhanced D3 Visualization Component that uses generated animation data
+export function EnhancedD3Visualization({
+  algorithmData,
+  animations,
+  currentStep,
+  onStepChange
+}: {
+  algorithmData: any
+  animations: any[]
+  currentStep: number
+  onStepChange: (step: number) => void
+}) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  useEffect(() => {
+    if (!svgRef.current || !animations || animations.length === 0) return
+
+    const currentAnimation = animations[currentStep]
+    if (!currentAnimation) return
+
+    setIsAnimating(true)
+
+    const executeAnimation = async () => {
+      const svg = d3.select(svgRef.current)
+      svg.selectAll("*").remove()
+
+      const width = 700
+      const height = 500
+
+      // Clear background
+      const mainGroup = svg.append("g").attr("class", "main-visualization")
+
+      // Execute animation atoms for current step
+      for (const atom of currentAnimation.atoms) {
+        try {
+          const context = {
+            library: 'd3',
+            container: svgRef.current,
+            elements: new Map(),
+            data: currentAnimation.data
+          }
+
+          switch (atom.action) {
+            case 'fadeIn':
+              await d3FadeIn(context, atom.target, atom.duration || 500, atom.easing || 'ease-out')
+              break
+            case 'fadeOut':
+              await d3FadeOut(context, atom.target, atom.duration || 500, atom.easing || 'ease-out')
+              break
+            case 'highlight':
+              await d3Highlight(context, atom.target, atom.style || 'active', atom.duration || 500)
+              break
+            case 'move':
+              await d3Move(context, atom.target, atom.from || { x: 0, y: 0 }, atom.to || { x: 0, y: 0 }, atom.duration || 500)
+              break
+            case 'scale':
+              await d3Scale(context, atom.target, atom.from || 1, atom.to || 1.2, atom.duration || 500)
+              break
+            case 'glow':
+              await d3Glow(context, atom.target, atom.intensity || 0.5, atom.duration || 500)
+              break
+            default:
+              console.log(`Unknown atom action: ${atom.action}`)
+          }
+        } catch (error) {
+          console.error(`Failed to execute atom ${atom.action}:`, error)
+        }
+      }
+
+      // Render visualization based on algorithm type
+      const algorithmType = algorithmData?.animation?.interactiveData?.algorithmType || 'generic'
+      await renderAlgorithmVisualization(mainGroup, currentAnimation.data, algorithmType)
+
+      setIsAnimating(false)
+    }
+
+    executeAnimation()
+  }, [currentStep, animations, algorithmData])
+
+  const renderAlgorithmVisualization = async (mainGroup: any, data: any, algorithmType: string) => {
+    switch (algorithmType) {
+      case 'linked-list':
+        await renderLinkedListVisualization(mainGroup, data)
+        break
+      case 'array':
+        await renderArrayVisualization(mainGroup, data)
+        break
+      case 'string':
+        await renderStringVisualization(mainGroup, data)
+        break
+      case 'tree':
+        await renderTreeVisualization(mainGroup, data)
+        break
+      case 'graph':
+        await renderGraphVisualization(mainGroup, data)
+        break
+      default:
+        await renderGenericVisualization(mainGroup, data)
+    }
+  }
+
+  const renderLinkedListVisualization = async (mainGroup: any, data: any) => {
+    const width = 700
+    const height = 400
+
+    // Algorithm title
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("🔗 Linked List Partition Algorithm")
+
+    // Partition value display
+    const partitionValue = data.partitionValue || 3
+    mainGroup.append("text")
+      .attr("x", width / 2)
+      .attr("y", 55)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "14px")
+      .text(`Partition Value: ${partitionValue}`)
+
+    // Render less-than list
+    if (data.lessList && Array.isArray(data.lessList)) {
+      const lessGroup = mainGroup.append("g").attr("class", "less-list")
+      lessGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 100)
+        .attr("fill", "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text("Less Than:")
+
+      data.lessList.forEach((node: any, index: number) => {
+        const value = typeof node === 'object' ? (node.value || node.val || node) : node
+        const x = 100 + index * 80
+        const y = 140
+
+        // Node background
+        lessGroup.append("rect")
+          .attr("x", x - 20)
+          .attr("y", y - 20)
+          .attr("width", 40)
+          .attr("height", 40)
+          .attr("fill", "#10b981")
+          .attr("stroke", "#059669")
+          .attr("stroke-width", 2)
+          .attr("rx", 8)
+          .style("filter", "drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3))")
+
+        // Node value
+        lessGroup.append("text")
+          .attr("x", x)
+          .attr("y", y + 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "18px")
+          .attr("font-weight", "600")
+          .text(value)
+
+        // Arrow to next node
+        if (index < data.lessList.length - 1) {
+          lessGroup.append("path")
+            .attr("d", `M ${x + 20} ${y} L ${x + 60} ${y}`)
+            .attr("stroke", "#10b981")
+            .attr("stroke-width", 3)
+            .attr("marker-end", "url(#arrowhead-green)")
+        }
+      })
+    }
+
+    // Render greater-than list
+    if (data.greaterList && Array.isArray(data.greaterList)) {
+      const greaterGroup = mainGroup.append("g").attr("class", "greater-list")
+      greaterGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 220)
+        .attr("fill", "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text("Greater Than:")
+
+      data.greaterList.forEach((node: any, index: number) => {
+        const value = typeof node === 'object' ? (node.value || node.val || node) : node
+        const x = 100 + index * 80
+        const y = 260
+
+        // Node background
+        greaterGroup.append("rect")
+          .attr("x", x - 20)
+          .attr("y", y - 20)
+          .attr("width", 40)
+          .attr("height", 40)
+          .attr("fill", "#ef4444")
+          .attr("stroke", "#dc2626")
+          .attr("stroke-width", 2)
+          .attr("rx", 8)
+          .style("filter", "drop-shadow(0 4px 8px rgba(239, 68, 68, 0.3))")
+
+        // Node value
+        greaterGroup.append("text")
+          .attr("x", x)
+          .attr("y", y + 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "18px")
+          .attr("font-weight", "600")
+          .text(value)
+
+        // Arrow to next node
+        if (index < data.greaterList.length - 1) {
+          greaterGroup.append("path")
+            .attr("d", `M ${x + 20} ${y} L ${x + 60} ${y}`)
+            .attr("stroke", "#ef4444")
+            .attr("stroke-width", 3)
+            .attr("marker-end", "url(#arrowhead-red)")
+        }
+      })
+    }
+
+    // Render final merged list
+    if (data.finalList && Array.isArray(data.finalList)) {
+      const finalGroup = mainGroup.append("g").attr("class", "final-list")
+      finalGroup.append("text")
+        .attr("x", 50)
+        .attr("y", 340)
+        .attr("fill", "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text("Final Result:")
+
+      data.finalList.forEach((value: any, index: number) => {
+        const actualValue = typeof value === 'object' ? (value.value || value.val || value) : value
+        const x = 150 + index * 70
+        const y = 380
+        const isLess = actualValue < partitionValue
+
+        // Node background
+        finalGroup.append("rect")
+          .attr("x", x - 20)
+          .attr("y", y - 20)
+          .attr("width", 40)
+          .attr("height", 40)
+          .attr("fill", isLess ? "#10b981" : "#ef4444")
+          .attr("stroke", isLess ? "#059669" : "#dc2626")
+          .attr("stroke-width", 2)
+          .attr("rx", 8)
+          .style("filter", "drop-shadow(0 4px 8px rgba(0,0,0,0.2))")
+
+        // Node value
+        finalGroup.append("text")
+          .attr("x", x)
+          .attr("y", y + 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "18px")
+          .attr("font-weight", "600")
+          .text(actualValue)
+
+        // Arrow to next node
+        if (index < data.finalList.length - 1) {
+          finalGroup.append("path")
+            .attr("d", `M ${x + 20} ${y} L ${x + 50} ${y}`)
+            .attr("stroke", "#7c3aed")
+            .attr("stroke-width", 3)
+            .attr("marker-end", "url(#arrowhead-purple)")
+        }
+      })
+    }
+
+    // Add arrow markers
+    const defs = mainGroup.append("defs")
+    defs.append("marker")
+      .attr("id", "arrowhead-green")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#10b981")
+
+    defs.append("marker")
+      .attr("id", "arrowhead-red")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#ef4444")
+
+    defs.append("marker")
+      .attr("id", "arrowhead-purple")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 z")
+      .attr("fill", "#7c3aed")
+  }
+
+  const renderArrayVisualization = async (mainGroup: any, data: any) => {
+    const array = data.array || [2, 7, 11, 15]
+    const target = data.target || 9
+    const currentIndex = data.currentIndex || 0
+
+    // Array title
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("🔢 Array Visualization")
+
+    // Target display
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 55)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "14px")
+      .text(`Target: ${target}`)
+
+    // Render array elements
+    const arrayGroup = mainGroup.append("g").attr("class", "array-elements")
+
+    array.forEach((value: number, index: number) => {
+      const x = 150 + index * 80
+      const y = 150
+      const isActive = index === currentIndex
+
+      // Array element background
+      arrayGroup.append("rect")
+        .attr("x", x - 25)
+        .attr("y", y - 25)
+        .attr("width", 50)
+        .attr("height", 50)
+        .attr("fill", isActive ? "#3b82f6" : "#f8fafc")
+        .attr("stroke", isActive ? "#2563eb" : "#e2e8f0")
+        .attr("stroke-width", isActive ? 3 : 2)
+        .attr("rx", 8)
+        .style("filter", isActive ? "drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3))" : "none")
+
+      // Array element value
+      arrayGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", isActive ? "#ffffff" : "#374151")
+        .attr("font-size", "18px")
+        .attr("font-weight", isActive ? "700" : "600")
+        .text(value)
+
+      // Array element index
+      arrayGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 35)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#6b7280")
+        .attr("font-size", "12px")
+        .text(`[${index}]`)
+    })
+  }
+
+  const renderStringVisualization = async (mainGroup: any, data: any) => {
+    const original = data.original || "aacecaaa"
+    const reversed = data.reversed || "aaacecaa"
+    const currentIndex = data.currentIndex || 0
+
+    // String title
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 30)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("📝 String Manipulation")
+
+    // Render original string
+    const originalGroup = mainGroup.append("g").attr("class", "original-string")
+    originalGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 80)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Original:")
+
+    original.split('').forEach((char: string, index: number) => {
+      const x = 150 + index * 25
+      const y = 100
+      const isActive = index === currentIndex
+
+      originalGroup.append("rect")
+        .attr("x", x - 12)
+        .attr("y", y - 15)
+        .attr("width", 24)
+        .attr("height", 30)
+        .attr("fill", isActive ? "#10b981" : "#f8fafc")
+        .attr("stroke", isActive ? "#059669" : "#e2e8f0")
+        .attr("stroke-width", isActive ? 2 : 1)
+        .attr("rx", 4)
+
+      originalGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", isActive ? "#ffffff" : "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text(char)
+    })
+
+    // Render reversed string
+    const reversedGroup = mainGroup.append("g").attr("class", "reversed-string")
+    reversedGroup.append("text")
+      .attr("x", 50)
+      .attr("y", 150)
+      .attr("fill", "#374151")
+      .attr("font-size", "16px")
+      .attr("font-weight", "600")
+      .text("Reversed:")
+
+    reversed.split('').forEach((char: string, index: number) => {
+      const x = 150 + index * 25
+      const y = 170
+
+      reversedGroup.append("rect")
+        .attr("x", x - 12)
+        .attr("y", y - 15)
+        .attr("width", 24)
+        .attr("height", 30)
+        .attr("fill", "#f8fafc")
+        .attr("stroke", "#e2e8f0")
+        .attr("stroke-width", 1)
+        .attr("rx", 4)
+
+      reversedGroup.append("text")
+        .attr("x", x)
+        .attr("y", y + 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#374151")
+        .attr("font-size", "16px")
+        .attr("font-weight", "600")
+        .text(char)
+    })
+  }
+
+  const renderTreeVisualization = async (mainGroup: any, data: any) => {
+    // Placeholder for tree visualization
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 200)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "16px")
+      .text("🌳 Tree Visualization (Coming Soon)")
+  }
+
+  const renderGraphVisualization = async (mainGroup: any, data: any) => {
+    // Placeholder for graph visualization
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 200)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "16px")
+      .text("🕸️ Graph Visualization (Coming Soon)")
+  }
+
+  const renderGenericVisualization = async (mainGroup: any, data: any) => {
+    // Generic visualization for unknown algorithm types
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 180)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#1f2937")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
+      .text("🎭 Algorithm Visualization")
+
+    mainGroup.append("text")
+      .attr("x", 350)
+      .attr("y", 220)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6b7280")
+      .attr("font-size", "16px")
+      .text(JSON.stringify(data, null, 2).substring(0, 100) + "...")
+  }
+
+  if (!animations || animations.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[500px] text-muted-foreground">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🎭</div>
+          <p>No animation data available</p>
+          <p className="text-sm">Try uploading a JavaScript algorithm file</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative">
+      {isAnimating && (
+        <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-50 rounded-xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">Rendering enhanced visualization...</p>
+          </div>
+        </div>
+      )}
+
+      <svg
+        ref={svgRef}
+        width="100%"
+        height="500"
+        viewBox="0 0 700 500"
+        className="w-full h-full"
+        style={{ background: 'transparent' }}
+      />
+
+      {/* Step Navigation */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+        <button
+          onClick={() => onStepChange(Math.max(0, currentStep - 1))}
+          disabled={currentStep === 0}
+          className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-800 transition-colors"
+        >
+          ←
+        </button>
+
+        <div className="px-3 py-1 bg-white/90 dark:bg-gray-800/90 rounded-full shadow-lg text-sm font-medium">
+          {currentStep + 1} / {animations.length}
+        </div>
+
+        <button
+          onClick={() => onStepChange(Math.min(animations.length - 1, currentStep + 1))}
+          disabled={currentStep === animations.length - 1}
+          className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-800 transition-colors"
+        >
+          →
+        </button>
+      </div>
+    </div>
+  )
+}
+
 interface AnimationStep {
   step: number
   title: string

@@ -26,6 +26,9 @@ import {
 import { useRouter } from "next/navigation"
 import { LocalStorageManager } from "@/lib/local-storage-manager"
 
+// Import animation generator for enhanced visualizations
+import { AlgorithmAnimationGenerator, createAnimationLibraries, enhanceAlgorithmData } from "@/lib/algorithm-animation-generator"
+
 interface AnalysisResult {
   algorithmName: string
   problemId: number
@@ -41,12 +44,12 @@ interface AnalysisResult {
     explanation: string
   }>
   constraints: string[]
-  solution: {
-    javascript: string
-    explanation: string
+  solution?: {
+    javascript?: string
+    explanation?: string
   }
   animationData: any
-  tags: string[]
+  tags?: string[]
   acceptanceRate?: string
   frequency?: number
 }
@@ -55,6 +58,7 @@ export default function UploadJSPage() {
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
+  const [generatingAnimations, setGeneratingAnimations] = useState(false)
   const [progress, setProgress] = useState(0)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -86,7 +90,7 @@ export default function UploadJSPage() {
 
     try {
       // Step 1: Upload file
-      setProgress(20)
+      setProgress(15)
       const formData = new FormData()
       formData.append('file', file)
 
@@ -100,9 +104,10 @@ export default function UploadJSPage() {
       }
 
       const uploadResult = await uploadResponse.json()
-      setProgress(50)
+      setProgress(30)
 
       // Step 2: Analyze with AI
+      setProgress(45)
       const analysisResponse = await fetch('/api/analyze-js', {
         method: 'POST',
         headers: {
@@ -120,16 +125,62 @@ export default function UploadJSPage() {
       }
 
       const analysisData = await analysisResponse.json()
-      setProgress(80)
+      setProgress(60)
 
-      // Step 3: Generate page
+      // Step 3: Enhance algorithm data with concrete animation data
+      setGeneratingAnimations(true)
+      setAnalyzing(false)
+      setProgress(70)
+
+      console.log('🎭 Enhancing algorithm data with concrete animations...')
+      const enhancedData = enhanceAlgorithmData(analysisData)
+
+      // Step 4: Generate animations for all libraries
+      setProgress(80)
+      console.log('🎬 Generating animations for D3, ReactFlow, and Three.js...')
+
+      // Create mock containers for animation generation (in a real implementation,
+      // these would be actual DOM elements passed to the animation generator)
+      const mockD3Container = document.createElement('div')
+      mockD3Container.id = 'd3-container'
+
+      const mockReactFlowContainer = document.createElement('div')
+      mockReactFlowContainer.id = 'reactflow-container'
+
+      const mockThreeContainer = document.createElement('div')
+      mockThreeContainer.id = 'three-container'
+
+      const animationLibraries = createAnimationLibraries(
+        mockD3Container,
+        mockReactFlowContainer,
+        mockThreeContainer
+      )
+
+      // Generate animations for all libraries
+      const generatedAnimations = await AlgorithmAnimationGenerator.generateAnimations(
+        enhancedData,
+        animationLibraries
+      )
+
+      console.log(`✅ Generated ${generatedAnimations.length} animation sets`)
+      generatedAnimations.forEach(anim => {
+        console.log(`   • ${anim.library.toUpperCase()}: ${anim.frames.length} frames, ${anim.atoms.length} atoms`)
+      })
+
+      // Add generated animations to the algorithm data
+      enhancedData.generatedAnimations = generatedAnimations
+
+      setProgress(90)
+
+      // Step 5: Generate page with enhanced animations
       const pageResponse = await fetch('/api/generate-page', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          algorithmData: analysisData,
+          algorithmData: enhancedData,
+          animations: generatedAnimations,
         }),
       })
 
@@ -139,7 +190,7 @@ export default function UploadJSPage() {
 
       const pageResult = await pageResponse.json()
       setProgress(100)
-      setAnalysisResult(analysisData)
+      setAnalysisResult(enhancedData)
       setPreviewUrl(pageResult.previewUrl)
 
       // Save algorithm data to localStorage for persistence
@@ -170,6 +221,7 @@ export default function UploadJSPage() {
     } finally {
       setUploading(false)
       setAnalyzing(false)
+      setGeneratingAnimations(false)
     }
   }
 
@@ -264,7 +316,7 @@ export default function UploadJSPage() {
                 </div>
               )}
 
-              {(uploading || analyzing) && (
+              {(uploading || analyzing || generatingAnimations) && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progress</span>
@@ -272,7 +324,12 @@ export default function UploadJSPage() {
                   </div>
                   <Progress value={progress} className="h-2" />
                   <p className="text-sm text-gray-600">
-                    {analyzing ? '🤖 AI is analyzing your code...' : '📤 Uploading file...'}
+                    {generatingAnimations
+                      ? '🎬 Generating animations for D3, ReactFlow & Three.js...'
+                      : analyzing
+                        ? '🤖 AI is analyzing your code...'
+                        : '📤 Uploading file...'
+                    }
                   </p>
                 </div>
               )}
@@ -323,9 +380,9 @@ export default function UploadJSPage() {
                     3
                   </div>
                   <div>
-                    <h4 className="font-medium">Generate Animations</h4>
+                    <h4 className="font-medium">AI Analysis & Enhancement</h4>
                     <p className="text-sm text-gray-600">
-                      Automatically creates interactive visualizations and animations
+                      AI analyzes code and generates concrete animation data with real values
                     </p>
                   </div>
                 </div>
@@ -334,9 +391,20 @@ export default function UploadJSPage() {
                     4
                   </div>
                   <div>
-                    <h4 className="font-medium">Complete Page</h4>
+                    <h4 className="font-medium">Generate Multi-Library Animations</h4>
                     <p className="text-sm text-gray-600">
-                      Get a fully functional algorithm learning page with explanations
+                      Creates interactive animations for D3, ReactFlow, and Three.js simultaneously
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-red-600">
+                    5
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Complete Interactive Page</h4>
+                    <p className="text-sm text-gray-600">
+                      Get a fully functional algorithm learning page with cross-platform animations
                     </p>
                   </div>
                 </div>
@@ -388,7 +456,7 @@ export default function UploadJSPage() {
                       </div>
 
                       <div className="flex flex-wrap gap-1">
-                        {analysisResult.tags.map(tag => (
+                        {analysisResult.tags && Array.isArray(analysisResult.tags) && analysisResult.tags.map(tag => (
                           <Badge key={tag} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
@@ -401,10 +469,10 @@ export default function UploadJSPage() {
                     <div>
                       <h4 className="font-medium mb-2">Solution</h4>
                       <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                        <code>{analysisResult.solution.javascript}</code>
+                        <code>{analysisResult.solution?.javascript || '// Solution code not available'}</code>
                       </pre>
                       <p className="text-sm text-gray-600 mt-2">
-                        {analysisResult.solution.explanation}
+                        {analysisResult.solution?.explanation || 'No explanation available'}
                       </p>
                     </div>
                   </TabsContent>

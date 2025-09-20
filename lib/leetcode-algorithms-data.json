@@ -1,0 +1,981 @@
+{
+  "leetcode-1": {
+    "id": "leetcode-1",
+    "problemId": 1,
+    "title": "两数之和",
+    "description": "给定一个整数数组 `nums` 和一个目标值 `target`，请你在该数组中找出和为目标值的那 **两个** 整数，并返回他们的数组下标。\n\n你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。\n\n**示例:**\n\n```\n给定 nums = [2, 7, 11, 15], target = 9\n\n因为 nums[0] + nums[1] = 2 + 7 = 9\n所以返回 [0, 1]\n```",
+    "difficulty": "Easy",
+    "category": "Array & Hash Table",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 45.8,
+    "estimatedTime": "15-30 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "给定一个整数数组 `nums` 和一个目标值 `target`，请你在该数组中找出和为目标值的那 **两个** 整数，并返回他们的数组下标。\n\n你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。\n\n**示例:**\n\n```\n给定 nums = [2, 7, 11, 15], target = 9\n\n因为 nums[0] + nums[1] = 2 + 7 = 9\n所以返回 [0, 1]\n```",
+    "examples": [
+      {
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "output": "[0, 1]",
+        "explanation": "nums[0] + nums[1] = 2 + 7 = 9 [0, 1]"
+      }
+    ],
+    "analogy": {
+      "title": "Finding Perfect Matches",
+      "content": "Like finding two puzzle pieces that fit perfectly together, we're looking for two numbers that sum to exactly the target value. Just as you might organize puzzle pieces by shape, we use a hash map to quickly find the complement we need."
+    },
+    "keyInsights": [
+      "Hash maps provide O(1) average case lookup time",
+      "Trade space for time - store complements for quick access",
+      "One-pass solution avoids multiple iterations",
+      "Handle edge cases like duplicate values carefully"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {
+      "optimized": {
+        "title": "Optimized Solution",
+        "timeComplexity": "O(n)",
+        "spaceComplexity": "O(n)",
+        "code": "// 1. Two Sum\n// https://leetcode.com/problems/two-sum/description/\n// 时间复杂度：O(n)\n// 空间复杂度：O(n)\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        unordered_map<int,int> record;\n        for(int i = 0 ; i < nums.size() ; i ++){\n       \n            int complement = target - nums[i];\n            if(record.find(complement) != record.end()){\n                int res[] = {i, record[complement]};\n                return vector<int>(res, res + 2);\n            }\n\n            record[nums[i]] = i;\n        }\n        return {};\n    }\n};",
+        "explanation": "使用查找表来解决该问题。\n\n设置一个 map 容器 record 用来记录元素的值与索引，然后遍历数组 nums。\n\n* 每次遍历时使用临时变量 complement 用来保存目标值与当前值的差值\n* 在此次遍历中查找 record ，查看是否有与 complement 一致的值，如果查找成功则返回查找值的索引值与当前变量的值 i\n* 如果未找到，则在 record 保存该元素与索引值 i",
+        "whenToUse": "Production code, large datasets"
+      },
+      "alternative": {
+        "title": "Java Implementation",
+        "timeComplexity": "O(n)",
+        "spaceComplexity": "O(n)",
+        "code": "// 1. Two Sum\n// https://leetcode.com/problems/two-sum/description/\n// 时间复杂度：O(n)\n// 空间复杂度：O(n)\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        int l = nums.length;\n        int[] ans=new int[2];\n        int i,j;\n        for(i=0;i<l-1;i++)\n        {\n            for(j=i+1;j<l;j++)\n            {\n                if(nums[i]+nums[j] == target)\n                {\n                    ans[0]=i;\n                    ans[1]=j;\n                }\n            }\n        }\n        \n        return ans;\n        \n    }\n}",
+        "explanation": "Alternative implementation in Java",
+        "whenToUse": "Java-based projects"
+      }
+    },
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "45.8% ",
+      "frequency": 49,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Straightforward",
+        "implementation": "Simple loops and data structures",
+        "optimization": "Basic time/space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": {
+        "title": "Finding Perfect Matches",
+        "content": "Like finding two puzzle pieces that fit perfectly together, we're looking for two numbers that sum to exactly the target value. Just as you might organize puzzle pieces by shape, we use a hash map to quickly find the complement we need."
+      },
+      "keyInsights": [
+        "Hash maps provide O(1) average case lookup time",
+        "Trade space for time - store complements for quick access",
+        "One-pass solution avoids multiple iterations",
+        "Handle edge cases like duplicate values carefully"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-2": {
+    "id": "leetcode-2",
+    "problemId": 2,
+    "title": "两数相加",
+    "description": "给出两个 **非空** 的链表用来表示两个非负的整数。其中，它们各自的位数是按照 **逆序** 的方式存储的，并且它们的每个节点只能存储 **一位** 数字。\n\n如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。\n\n您可以假设除了数字 0 之外，这两个数都不会以 0 开头。\n\n**示例：**\n\n```\n输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)\n输出：7 -> 0 -> 8\n原因：342 + 465 = 807\n```",
+    "difficulty": "Medium",
+    "category": "Algorithm",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 33.9,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "给出两个 **非空** 的链表用来表示两个非负的整数。其中，它们各自的位数是按照 **逆序** 的方式存储的，并且它们的每个节点只能存储 **一位** 数字。\n\n如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。\n\n您可以假设除了数字 0 之外，这两个数都不会以 0 开头。\n\n**示例：**\n\n```\n输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)\n输出：7 -> 0 -> 8\n原因：342 + 465 = 807\n```",
+    "examples": [
+      {
+        "input": "(2 -> 4 -> 3) + (5 -> 6 -> 4)",
+        "output": "7 -> 0 -> 8",
+        "explanation": "原因：342 + 465 = 807"
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "33.9% ",
+      "frequency": 76,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-3": {
+    "id": "leetcode-3",
+    "problemId": 3,
+    "title": "无重复字符的最长子串",
+    "description": "给定一个字符串，请你找出其中不含有重复字符的 **最长子串** 的长度。\n\n**示例 1:**\n\n```java\n输入: \"abcabcbb\"\n输出: 3 \n解释: 因为无重复字符的最长子串是 \"abc\"，所以其长度为 3。\n```",
+    "difficulty": "Medium",
+    "category": "Algorithm",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 29,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "给定一个字符串，请你找出其中不含有重复字符的 **最长子串** 的长度。\n\n**示例 1:**\n\n```java\n输入: \"abcabcbb\"\n输出: 3 \n解释: 因为无重复字符的最长子串是 \"abc\"，所以其长度为 3。\n```",
+    "examples": [
+      {
+        "input": "### 题目解析",
+        "output": "",
+        "explanation": "建立一个256位大小的整型数组 freg ，用来建立字符和其出现位置之间的映射。  维护一个滑动窗口，窗口内的都是没有重复的字符，去尽可能的扩大窗口的大小，窗口不停的向右滑动。  - （1）如果当前遍历到的字符从未出现过，那么直接扩大右边界； - （2）如果当前遍历到的字符出现过，则缩小窗口（左边索引向右移动），然后继续观察当前遍历到的字符； - （3）重复（1）（2），直到左边索引无法再移动； - （4）维护一个结果res，每次用出现过的窗口大小来更新结果 res，最后返回 res 获取结果。  ### 动画描述  ![动画描述](https://blog-1257126549.cos.ap-guangzhou.myqcloud.com/blog/20ahe.gif)  ### 代码实现"
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "29.0% ",
+      "frequency": 42,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-4": {
+    "id": "leetcode-4",
+    "problemId": 4,
+    "title": "寻找两个正序数组的中位数",
+    "description": "",
+    "difficulty": "Hard",
+    "category": "Algorithm",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 29,
+    "estimatedTime": "60-120 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "",
+    "examples": [],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "29.0% ",
+      "frequency": 12,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Complex problem analysis",
+        "implementation": "Advanced data structures",
+        "optimization": "Optimal algorithmic solutions"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-5": {
+    "id": "leetcode-5",
+    "problemId": 5,
+    "title": "最长回文串",
+    "description": "",
+    "difficulty": "Medium",
+    "category": "String",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 29,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "",
+    "examples": [
+      {
+        "input": "Input: \"babad\"",
+        "output": "Output: \"bab\"",
+        "explanation": "Note: \"aba\" is also a valid answer."
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "29% ",
+      "frequency": 83,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-6": {
+    "id": "leetcode-6",
+    "problemId": 6,
+    "title": "蛇形矩阵",
+    "description": "",
+    "difficulty": "Medium",
+    "category": "Algorithm",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 35.1,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "",
+    "examples": [
+      {
+        "input": "P   A   H   N",
+        "output": "A P L S I I G",
+        "explanation": "Y   I   R And then read line by line: \"PAHNAPLSIIGYIR\"  Write the code that will take a string and make this conversion given a number of rows:  string convert(string s, int numRows); Example 1:  Input: s = \"PAYPALISHIRING\", numRows = 3 Output: \"PAHNAPLSIIGYIR\" Example 2:  Input: s = \"PAYPALISHIRING\", numRows = 4 Output: \"PINALSIGYAHRPI\" Explanation:  P     I    N A   L S  I G Y A   H R P     I"
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "35.1% ",
+      "frequency": 54,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-9": {
+    "id": "leetcode-9",
+    "problemId": 9,
+    "title": "回文数",
+    "description": "",
+    "difficulty": "Easy",
+    "category": "String",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 56,
+    "estimatedTime": "15-30 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "",
+    "examples": [
+      {
+        "input": "输入: 121",
+        "output": "输出: true",
+        "explanation": ""
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "56.0%",
+      "frequency": 72,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Straightforward",
+        "implementation": "Simple loops and data structures",
+        "optimization": "Basic time/space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-11": {
+    "id": "leetcode-11",
+    "problemId": 11,
+    "title": "maxArea",
+    "description": "",
+    "difficulty": "Medium",
+    "category": "Algorithm",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 45,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "",
+    "examples": [
+      {
+        "input": "我们都应该听说过**木桶原理**，一个木桶可以装入多少水取决于最短的那块板；而这道题也可以与木桶装水的问题对应上。",
+        "output": "很容易的可以得到---->**容器可以容纳水的容量=两条垂直线中最短的那条*两条线之间的距离**",
+        "explanation": "现在的情况是，有很多条线，让你计算两两之间能装的最多的水，其实暴力法之间就能解决这个问题，但是它的时间复杂度也达到了**O(n^2)**  ok，那我们先试试用**暴力法**来解 决问题：  ### 1.暴力法  直接上代码："
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "45.0%",
+      "frequency": 59,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-15": {
+    "id": "leetcode-15",
+    "problemId": 15,
+    "title": "三数之和",
+    "description": "给定一个包含 *n* 个整数的数组 `nums`，判断 `nums` 中是否存在三个元素 *a，b，c ，*使得 *a + b + c =* 0 ？找出所有满足条件且不重复的三元组。",
+    "difficulty": "Medium",
+    "category": "Array & Hash Table",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 45,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "给定一个包含 *n* 个整数的数组 `nums`，判断 `nums` 中是否存在三个元素 *a，b，c ，*使得 *a + b + c =* 0 ？找出所有满足条件且不重复的三元组。",
+    "examples": [],
+    "analogy": null,
+    "keyInsights": [
+      "Break down the problem into smaller subproblems",
+      "Consider time and space complexity trade-offs",
+      "Think about edge cases and boundary conditions",
+      "Look for optimal data structures for the problem"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "45.0%",
+      "frequency": 60,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Break down the problem into smaller subproblems",
+        "Consider time and space complexity trade-offs",
+        "Think about edge cases and boundary conditions",
+        "Look for optimal data structures for the problem"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  },
+  "leetcode-19": {
+    "id": "leetcode-19",
+    "problemId": 19,
+    "title": "删除链表的倒数第 N 个节点",
+    "description": "给定一个链表，删除链表的倒数第 *n* 个节点，并且返回链表的头结点。\n\n**示例：**\n\n```\n给定一个链表: 1->2->3->4->5, 和 n = 2.\n\n当删除了倒数第二个节点后，链表变为 1->2->3->5.\n```\n\n**说明：**\n\n给定的 *n* 保证是有效的。\n\n**进阶：**\n\n你能尝试使用一趟扫描实现吗？",
+    "difficulty": "Medium",
+    "category": "Linked List",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "popularity": 34.4,
+    "estimatedTime": "30-60 mins",
+    "realWorldUse": "Various software engineering applications",
+    "problemStatement": "给定一个链表，删除链表的倒数第 *n* 个节点，并且返回链表的头结点。\n\n**示例：**\n\n```\n给定一个链表: 1->2->3->4->5, 和 n = 2.\n\n当删除了倒数第二个节点后，链表变为 1->2->3->5.\n```\n\n**说明：**\n\n给定的 *n* 保证是有效的。\n\n**进阶：**\n\n你能尝试使用一趟扫描实现吗？",
+    "examples": [
+      {
+        "input": "给定一个链表: 1->2->3->4->5, 和 n = 2.",
+        "output": "",
+        "explanation": "当删除了倒数第二个节点后，链表变为 1->2->3->5."
+      }
+    ],
+    "analogy": null,
+    "keyInsights": [
+      "Multiple pointers can solve linked list problems efficiently",
+      "Always handle edge cases: empty list, single node, head/tail operations",
+      "Dummy nodes can simplify boundary condition handling"
+    ],
+    "realWorldApplications": [],
+    "engineeringLessons": [],
+    "implementations": {},
+    "animationStates": [],
+    "metadata": {
+      "tags": [
+        "LeetCode"
+      ],
+      "acceptanceRate": "34.4% ",
+      "frequency": 91,
+      "similarProblems": [],
+      "difficultyBreakdown": {
+        "understanding": "Requires careful analysis",
+        "implementation": "Multiple approaches possible",
+        "optimization": "Balance time vs space complexity"
+      }
+    },
+    "educationalContent": {
+      "analogy": null,
+      "keyInsights": [
+        "Multiple pointers can solve linked list problems efficiently",
+        "Always handle edge cases: empty list, single node, head/tail operations",
+        "Dummy nodes can simplify boundary condition handling"
+      ],
+      "commonMistakes": [],
+      "optimizationTips": [],
+      "interviewTips": []
+    },
+    "codeQuality": {
+      "readability": 8,
+      "efficiency": 9,
+      "maintainability": 7,
+      "documentation": 8,
+      "testability": 9,
+      "bestPractices": []
+    },
+    "testingScenarios": [
+      {
+        "scenario": "Basic Case",
+        "input": "nums = [2, 7, 11, 15], target = 9",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": false
+      },
+      {
+        "scenario": "No Solution",
+        "input": "nums = [1, 2, 3], target = 10",
+        "expectedOutput": "[]",
+        "edgeCase": true
+      },
+      {
+        "scenario": "Duplicate Values",
+        "input": "nums = [3, 3], target = 6",
+        "expectedOutput": "[0, 1]",
+        "edgeCase": true
+      }
+    ],
+    "performanceAnalysis": {
+      "bestCase": "O(1)",
+      "averageCase": "O(n)",
+      "worstCase": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "bottlenecks": [
+        "Hash collisions",
+        "Memory allocation"
+      ],
+      "scalability": "Linear scaling with input size"
+    },
+    "relatedAlgorithms": []
+  }
+}

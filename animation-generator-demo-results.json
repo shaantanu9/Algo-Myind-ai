@@ -1,0 +1,1073 @@
+{
+  "timestamp": "2025-09-20T16:47:32.815Z",
+  "algorithm": "Partition List",
+  "algorithmType": "linked-list",
+  "libraries": [
+    "d3",
+    "reactflow",
+    "three"
+  ],
+  "frames": [
+    {
+      "step": 1,
+      "title": "Initialize Pointers",
+      "description": "Create dummy nodes and set up traversal pointers",
+      "data": {
+        "lessHead": {
+          "value": 0,
+          "next": null
+        },
+        "greaterHead": {
+          "value": 0,
+          "next": null
+        },
+        "less": {
+          "value": 0,
+          "next": null
+        },
+        "greater": {
+          "value": 0,
+          "next": null
+        },
+        "partitionValue": 3
+      },
+      "highlights": [],
+      "transitions": [],
+      "atoms": [
+        {
+          "type": "visual",
+          "action": "fadeIn",
+          "target": "step-1",
+          "duration": 300,
+          "delay": 0
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Traverse List",
+      "description": "Iterate through each node and partition based on value",
+      "data": {
+        "currentNode": {
+          "value": 1,
+          "next": {
+            "value": 4,
+            "next": {
+              "value": 3,
+              "next": {
+                "value": 2,
+                "next": {
+                  "value": 5,
+                  "next": null
+                }
+              }
+            }
+          }
+        },
+        "partitionValue": 3,
+        "lessList": [
+          {
+            "value": 1
+          },
+          {
+            "value": 2
+          }
+        ],
+        "greaterList": [
+          {
+            "value": 4
+          },
+          {
+            "value": 3
+          },
+          {
+            "value": 5
+          }
+        ],
+        "currentIndex": 0
+      },
+      "highlights": [
+        {
+          "type": "node",
+          "target": "current-node",
+          "style": "active",
+          "duration": 500
+        },
+        {
+          "type": "range",
+          "target": "less-list",
+          "style": "success",
+          "duration": 300
+        },
+        {
+          "type": "range",
+          "target": "greater-list",
+          "style": "warning",
+          "duration": 300
+        }
+      ],
+      "transitions": [
+        {
+          "from": {
+            "x": 0,
+            "y": 0
+          },
+          "to": {
+            "x": -200,
+            "y": 0
+          },
+          "duration": 600,
+          "easing": "ease-out",
+          "element": "less-nodes"
+        },
+        {
+          "from": {
+            "x": 0,
+            "y": 0
+          },
+          "to": {
+            "x": 200,
+            "y": 0
+          },
+          "duration": 600,
+          "easing": "ease-out",
+          "element": "greater-nodes"
+        }
+      ],
+      "atoms": [
+        {
+          "type": "visual",
+          "action": "fadeIn",
+          "target": "step-2",
+          "duration": 300,
+          "delay": 0
+        },
+        {
+          "type": "visual",
+          "action": "highlight",
+          "target": "less-list",
+          "duration": 500,
+          "style": "success"
+        },
+        {
+          "type": "visual",
+          "action": "highlight",
+          "target": "greater-list",
+          "duration": 500,
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Build Less-Than List",
+      "description": "Connect nodes with values less than partition value",
+      "data": {
+        "less": {
+          "value": 1,
+          "next": {
+            "value": 2,
+            "next": null
+          }
+        },
+        "lessList": [
+          {
+            "value": 1
+          },
+          {
+            "value": 2
+          }
+        ],
+        "partitionValue": 3
+      },
+      "highlights": [
+        {
+          "type": "range",
+          "target": "less-list",
+          "style": "success",
+          "duration": 300
+        }
+      ],
+      "transitions": [],
+      "atoms": [
+        {
+          "type": "visual",
+          "action": "fadeIn",
+          "target": "step-3",
+          "duration": 300,
+          "delay": 0
+        },
+        {
+          "type": "visual",
+          "action": "highlight",
+          "target": "less-list",
+          "duration": 500,
+          "style": "success"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Build Greater-Than List",
+      "description": "Connect nodes with values greater than or equal to partition value",
+      "data": {
+        "greater": {
+          "value": 4,
+          "next": {
+            "value": 3,
+            "next": {
+              "value": 5,
+              "next": null
+            }
+          }
+        },
+        "greaterList": [
+          {
+            "value": 4
+          },
+          {
+            "value": 3
+          },
+          {
+            "value": 5
+          }
+        ],
+        "partitionValue": 3
+      },
+      "highlights": [
+        {
+          "type": "range",
+          "target": "greater-list",
+          "style": "warning",
+          "duration": 300
+        }
+      ],
+      "transitions": [],
+      "atoms": [
+        {
+          "type": "visual",
+          "action": "fadeIn",
+          "target": "step-4",
+          "duration": 300,
+          "delay": 0
+        },
+        {
+          "type": "visual",
+          "action": "highlight",
+          "target": "greater-list",
+          "duration": 500,
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Merge Lists",
+      "description": "Connect the less-than list to the greater-than list",
+      "data": {
+        "finalList": [
+          1,
+          2,
+          4,
+          3,
+          5
+        ],
+        "less": {
+          "value": 1,
+          "next": {
+            "value": 2,
+            "next": {
+              "value": 4,
+              "next": {
+                "value": 3,
+                "next": {
+                  "value": 5,
+                  "next": null
+                }
+              }
+            }
+          }
+        },
+        "partitionValue": 3
+      },
+      "highlights": [],
+      "transitions": [],
+      "atoms": [
+        {
+          "type": "visual",
+          "action": "fadeIn",
+          "target": "step-5",
+          "duration": 300,
+          "delay": 0
+        }
+      ]
+    }
+  ],
+  "animations": {
+    "d3": [
+      {
+        "library": "d3",
+        "frame": 1,
+        "title": "Initialize Pointers",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-1",
+            "duration": 300,
+            "delay": 0,
+            "library": "d3",
+            "implementation": "d3.select('#step-1').transition().duration(300)"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      },
+      {
+        "library": "d3",
+        "frame": 2,
+        "title": "Traverse List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-2",
+            "duration": 300,
+            "delay": 0,
+            "library": "d3",
+            "implementation": "d3.select('#step-2').transition().duration(300)"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "d3",
+            "implementation": "d3.select('#less-list').transition().duration(500)"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "d3",
+            "implementation": "d3.select('#greater-list').transition().duration(500)"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "node",
+            "target": "current-node",
+            "style": "active",
+            "duration": 500
+          },
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          },
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": [
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": -200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "less-nodes"
+          },
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": 200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "greater-nodes"
+          }
+        ]
+      },
+      {
+        "library": "d3",
+        "frame": 3,
+        "title": "Build Less-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-3",
+            "duration": 300,
+            "delay": 0,
+            "library": "d3",
+            "implementation": "d3.select('#step-3').transition().duration(300)"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "d3",
+            "implementation": "d3.select('#less-list').transition().duration(500)"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "d3",
+        "frame": 4,
+        "title": "Build Greater-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-4",
+            "duration": 300,
+            "delay": 0,
+            "library": "d3",
+            "implementation": "d3.select('#step-4').transition().duration(300)"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "d3",
+            "implementation": "d3.select('#greater-list').transition().duration(500)"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "d3",
+        "frame": 5,
+        "title": "Merge Lists",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-5",
+            "duration": 300,
+            "delay": 0,
+            "library": "d3",
+            "implementation": "d3.select('#step-5').transition().duration(300)"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      }
+    ],
+    "reactflow": [
+      {
+        "library": "reactflow",
+        "frame": 1,
+        "title": "Initialize Pointers",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-1",
+            "duration": 300,
+            "delay": 0,
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for fadeIn on step-1"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      },
+      {
+        "library": "reactflow",
+        "frame": 2,
+        "title": "Traverse List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-2",
+            "duration": 300,
+            "delay": 0,
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for fadeIn on step-2"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for highlight on less-list"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for highlight on greater-list"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "node",
+            "target": "current-node",
+            "style": "active",
+            "duration": 500
+          },
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          },
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": [
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": -200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "less-nodes"
+          },
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": 200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "greater-nodes"
+          }
+        ]
+      },
+      {
+        "library": "reactflow",
+        "frame": 3,
+        "title": "Build Less-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-3",
+            "duration": 300,
+            "delay": 0,
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for fadeIn on step-3"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for highlight on less-list"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "reactflow",
+        "frame": 4,
+        "title": "Build Greater-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-4",
+            "duration": 300,
+            "delay": 0,
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for fadeIn on step-4"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for highlight on greater-list"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "reactflow",
+        "frame": 5,
+        "title": "Merge Lists",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-5",
+            "duration": 300,
+            "delay": 0,
+            "library": "reactflow",
+            "implementation": "ReactFlow API call for fadeIn on step-5"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      }
+    ],
+    "three": [
+      {
+        "library": "three",
+        "frame": 1,
+        "title": "Initialize Pointers",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-1",
+            "duration": 300,
+            "delay": 0,
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for fadeIn"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      },
+      {
+        "library": "three",
+        "frame": 2,
+        "title": "Traverse List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-2",
+            "duration": 300,
+            "delay": 0,
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for fadeIn"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for highlight"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for highlight"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "node",
+            "target": "current-node",
+            "style": "active",
+            "duration": 500
+          },
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          },
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": [
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": -200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "less-nodes"
+          },
+          {
+            "from": {
+              "x": 0,
+              "y": 0
+            },
+            "to": {
+              "x": 200,
+              "y": 0
+            },
+            "duration": 600,
+            "easing": "ease-out",
+            "element": "greater-nodes"
+          }
+        ]
+      },
+      {
+        "library": "three",
+        "frame": 3,
+        "title": "Build Less-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-3",
+            "duration": 300,
+            "delay": 0,
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for fadeIn"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "less-list",
+            "duration": 500,
+            "style": "success",
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for highlight"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "less-list",
+            "style": "success",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "three",
+        "frame": 4,
+        "title": "Build Greater-Than List",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-4",
+            "duration": 300,
+            "delay": 0,
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for fadeIn"
+          },
+          {
+            "type": "visual",
+            "action": "highlight",
+            "target": "greater-list",
+            "duration": 500,
+            "style": "warning",
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for highlight"
+          }
+        ],
+        "highlights": [
+          {
+            "type": "range",
+            "target": "greater-list",
+            "style": "warning",
+            "duration": 300
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "library": "three",
+        "frame": 5,
+        "title": "Merge Lists",
+        "atoms": [
+          {
+            "type": "visual",
+            "action": "fadeIn",
+            "target": "step-5",
+            "duration": 300,
+            "delay": 0,
+            "library": "three",
+            "implementation": "THREE.js scene manipulation for fadeIn"
+          }
+        ],
+        "highlights": [],
+        "transitions": []
+      }
+    ]
+  },
+  "metrics": {
+    "totalFrames": 5,
+    "totalAtoms": 9,
+    "totalHighlights": 5,
+    "totalTransitions": 2
+  },
+  "originalData": {
+    "id": "partition-list",
+    "problemId": 86,
+    "title": "Partition List",
+    "description": "A linked list algorithm that uses iterative approach to solve the problem with O(n) time complexity.",
+    "difficulty": "Easy",
+    "category": "Linked List",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)",
+    "popularity": 75,
+    "estimatedTime": "15-30 min",
+    "realWorldUse": "Memory management, undo functionality, browser history",
+    "problemStatement": "Given a linked list, traverse and modify nodes to achieve the desired result.",
+    "examples": [
+      {
+        "input": "[1, 2, 3, 4, 5]",
+        "output": "[1, 3, 5]",
+        "explanation": "Returns nodes with odd indices from the linked list"
+      }
+    ],
+    "animationStates": [
+      {
+        "step": 1,
+        "title": "Initialize Pointers",
+        "description": "Create dummy nodes and set up traversal pointers",
+        "data": {
+          "lessHead": {
+            "value": 0,
+            "next": null
+          },
+          "greaterHead": {
+            "value": 0,
+            "next": null
+          },
+          "less": {
+            "value": 0,
+            "next": null
+          },
+          "greater": {
+            "value": 0,
+            "next": null
+          },
+          "partitionValue": 3
+        }
+      },
+      {
+        "step": 2,
+        "title": "Traverse List",
+        "description": "Iterate through each node and partition based on value",
+        "data": {
+          "currentNode": {
+            "value": 1,
+            "next": {
+              "value": 4,
+              "next": {
+                "value": 3,
+                "next": {
+                  "value": 2,
+                  "next": {
+                    "value": 5,
+                    "next": null
+                  }
+                }
+              }
+            }
+          },
+          "partitionValue": 3,
+          "lessList": [
+            {
+              "value": 1
+            },
+            {
+              "value": 2
+            }
+          ],
+          "greaterList": [
+            {
+              "value": 4
+            },
+            {
+              "value": 3
+            },
+            {
+              "value": 5
+            }
+          ],
+          "currentIndex": 0
+        }
+      },
+      {
+        "step": 3,
+        "title": "Build Less-Than List",
+        "description": "Connect nodes with values less than partition value",
+        "data": {
+          "less": {
+            "value": 1,
+            "next": {
+              "value": 2,
+              "next": null
+            }
+          },
+          "lessList": [
+            {
+              "value": 1
+            },
+            {
+              "value": 2
+            }
+          ],
+          "partitionValue": 3
+        }
+      },
+      {
+        "step": 4,
+        "title": "Build Greater-Than List",
+        "description": "Connect nodes with values greater than or equal to partition value",
+        "data": {
+          "greater": {
+            "value": 4,
+            "next": {
+              "value": 3,
+              "next": {
+                "value": 5,
+                "next": null
+              }
+            }
+          },
+          "greaterList": [
+            {
+              "value": 4
+            },
+            {
+              "value": 3
+            },
+            {
+              "value": 5
+            }
+          ],
+          "partitionValue": 3
+        }
+      },
+      {
+        "step": 5,
+        "title": "Merge Lists",
+        "description": "Connect the less-than list to the greater-than list",
+        "data": {
+          "finalList": [
+            1,
+            2,
+            4,
+            3,
+            5
+          ],
+          "less": {
+            "value": 1,
+            "next": {
+              "value": 2,
+              "next": {
+                "value": 4,
+                "next": {
+                  "value": 3,
+                  "next": {
+                    "value": 5,
+                    "next": null
+                  }
+                }
+              }
+            }
+          },
+          "partitionValue": 3
+        }
+      }
+    ],
+    "animation": {
+      "interactiveData": {
+        "algorithmType": "linked-list",
+        "dataStructure": "Linked List",
+        "keyOperations": [
+          "Pointer movement",
+          "Node traversal",
+          "Pointer manipulation"
+        ],
+        "visualizationHints": "Show linked list operations and data flow"
+      }
+    },
+    "metadata": {
+      "tags": [
+        "Linked List",
+        "Two Pointers"
+      ],
+      "acceptanceRate": "50%",
+      "frequency": 50
+    },
+    "lastModified": 1758386283547
+  }
+}

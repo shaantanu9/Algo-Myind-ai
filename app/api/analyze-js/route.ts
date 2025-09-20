@@ -40,7 +40,7 @@ async function analyzeCodeWithAI(
   algorithmSlug: string | null
 ) {
   const prompt = `
-You are an expert algorithm analyst. Analyze this ENTIRE JavaScript algorithm solution comprehensively.
+You are an expert algorithm animator and analyst. Analyze this JavaScript code and generate comprehensive animation data optimized for D3.js, ReactFlow, and Three.js interactive visualizations.
 
 CODE TO ANALYZE:
 ${code}
@@ -49,104 +49,287 @@ FILENAME: ${fileName}
 PROBLEM ID: ${problemId || 'Unknown'}
 ALGORITHM SLUG: ${algorithmSlug || 'Unknown'}
 
-ANALYSIS REQUIREMENTS:
-1. Read and understand the ENTIRE code thoroughly
-2. Identify the algorithm type, data structures, and approach used
-3. Analyze time and space complexity accurately
-4. Extract meaningful examples from the code logic
-5. Create educational content including analogies and insights
-6. Generate appropriate animation states for visualization
+CRITICAL REQUIREMENTS:
+1. Generate CONCRETE ANIMATION DATA with real values (no placeholders like "array" or "s")
+2. Include algorithm-specific data structures for proper visualization
+3. Provide visualization hints for D3, ReactFlow, and Three.js
+4. Create step-by-step animation states with timing information
+5. Focus on educational value and interactive learning experience
 
-IMPORTANT: Provide ONLY a valid JSON response with NO additional text, comments, or markdown formatting. Start directly with { and end with }. Use double quotes for all strings and property names. Do not include trailing commas.
+IMPORTANT: Return ONLY valid JSON starting with { and ending with }. No markdown, comments, or additional text.
+
 {
-  "algorithmName": "string - kebab-case name (e.g., 'two-sum', 'binary-search')",
-  "problemId": ${problemId || 'number - extract from filename or 0'},
-  "title": "string - human readable title",
-  "description": "string - detailed problem description",
-  "difficulty": "Easy" | "Medium" | "Hard",
-  "category": "string - algorithm category (Array, String, Linked List, etc.)",
-  "timeComplexity": "string - Big O notation (e.g., 'n', 'n^2', 'log n')",
-  "spaceComplexity": "string - Big O notation",
+  "algorithmName": "${algorithmSlug || 'algorithm'}",
+  "problemId": ${problemId || 0},
+  "title": "Algorithm Title",
+  "description": "Detailed algorithm description with approach explanation",
+  "difficulty": "Easy|Medium|Hard",
+  "category": "Array|String|Linked List|Tree|Graph|Dynamic Programming|Sorting",
+  "timeComplexity": "O(1)|O(log n)|O(n)|O(n log n)|O(n²)|O(2^n)",
+  "spaceComplexity": "O(1)|O(log n)|O(n)|O(n²)",
+
   "examples": [
     {
-      "input": "string - example input",
-      "output": "string - example output",
-      "explanation": "string - explanation of the example"
-    }
-  ],
-  "problemStatement": "string - detailed problem statement and description",
-  "realWorldUse": "string - real world applications and use cases",
-  "analogy": {
-    "title": "string - creative real-world analogy title",
-    "content": "string - detailed analogy explaining the algorithm"
-  },
-  "keyInsights": ["string - key learning points and insights"],
-  "realWorldApplications": [
+      "input": "Generate concrete, realistic input based on the algorithm type. For Two Sum: [2,7,11,15], target = 9. For Shortest Palindrome: 'aacecaaa'. For Linked List: [1,4,3,2,5], partitionValue = 3",
+      "output": "Generate corresponding concrete output. For Two Sum: [0,1]. For Shortest Palindrome: 'aaacecaaa'. For Linked List: [1,2,4,3,5]",
+      "explanation": "Provide detailed step-by-step explanation of how the algorithm processes this specific input to produce the output"
+    },
     {
-      "domain": "string - application domain (e.g., 'E-commerce')",
-      "application": "string - specific use case",
-      "description": "string - detailed description"
-    }
-  ],
-  "engineeringLessons": [
+      "input": "Generate a different realistic example for the same algorithm type",
+      "output": "Generate corresponding output for this example",
+      "explanation": "Explain the algorithm's behavior with this different input"
+    },
     {
-      "principle": "string - engineering principle",
-      "lesson": "string - lesson learned",
-      "application": "string - how to apply in real systems"
+      "input": "Generate an edge case example (empty, single element, maximum values)",
+      "output": "Generate corresponding edge case output",
+      "explanation": "Explain how the algorithm handles edge cases"
     }
   ],
+
+  "problemStatement": "Complete problem description with constraints and requirements",
+
   "implementations": {
     "bruteForce": {
-      "title": "string - brute force approach title (REQUIRED - always provide)",
-      "timeComplexity": "string - time complexity for brute force (e.g., 'O(n²)')",
-      "spaceComplexity": "string - space complexity for brute force (e.g., 'O(1)')",
-      "code": "string - brute force solution code (if not provided, describe the approach)"
+      "title": "Brute Force Approach - Complete Solution",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "code": "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')}",
+      "explanation": "Simple but inefficient approach that checks all possible combinations",
+      "whenToUse": "Small input sizes, educational purposes, baseline comparison"
     },
     "optimized": {
-      "title": "string - optimized approach title (REQUIRED - always provide)",
-      "timeComplexity": "string - time complexity for optimized solution",
-      "spaceComplexity": "string - space complexity for optimized solution",
-      "code": "string - optimized solution code (REQUIRED - use the provided uploaded code)"
+      "title": "Optimized Solution - Efficient Implementation",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "code": "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')}",
+      "explanation": "Most efficient approach using optimal algorithm design",
+      "whenToUse": "Large input sizes, production code, performance-critical applications"
+    },
+    "alternative": {
+      "title": "Alternative Approach - Different Strategy",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "code": "// Alternative implementation would go here",
+      "explanation": "Different algorithmic approach for comparison",
+      "whenToUse": "When space is not a constraint, educational comparison"
     }
   },
+
   "animationStates": [
     {
-      "step": "number - step number (REQUIRED)",
-      "title": "string - step title (REQUIRED)",
-      "description": "string - step description (REQUIRED)",
-      "data": "object - CONCRETE data for visualization (REQUIRED - use actual values, not placeholders)"
+      "step": 1,
+      "title": "Initialization",
+      "description": "Set up data structures and initial state",
+      "data": {
+        "status": "initialized",
+        "timestamp": "Date.now()",
+        "duration": 300,
+        "easing": "ease-out"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Main Processing",
+      "description": "Execute core algorithm logic with concrete data",
+      "data": {
+        "currentIndex": 0,
+        "processing": true,
+        "duration": 500,
+        "delay": 200
+      }
+    },
+    {
+      "step": 3,
+      "title": "Algorithm Completion",
+      "description": "Final result and cleanup",
+      "data": {
+        "completed": true,
+        "result": "computed",
+        "duration": 400,
+        "highlightResult": true
+      }
     }
   ],
+
   "animation": {
     "interactiveData": {
-      "algorithmType": "string - type for animation generation",
-      "dataStructure": "string - main data structure used",
-      "keyOperations": ["string - key operations to animate"],
-      "visualizationHints": "string - hints for visualization"
+      "algorithmType": "array|linked-list|tree|graph|string|dp|sorting",
+      "dataStructure": "Array|LinkedList|Tree|Graph|String|Number",
+      "keyOperations": [
+        "Pointer movement",
+        "Value comparison",
+        "Node traversal",
+        "List manipulation",
+        "Tree traversal",
+        "Array indexing"
+      ],
+      "visualizationHints": "Detailed hints for each visualization library",
+      "d3Hints": "SVG-based approach: Use circles for nodes, paths for connections, transitions for animations",
+      "reactFlowHints": "Node-edge approach: Custom node types, animated edges, interactive controls",
+      "threeHints": "3D approach: Spatial positioning, material animations, camera movements"
     }
   },
-  "metadata": {
-    "tags": ["string - relevant tags for the algorithm"],
-    "acceptanceRate": "string - estimated acceptance rate (e.g., '50.5%')",
-    "frequency": "number - frequency score (1-100)"
+
+  "visualizationConfig": {
+    "d3": {
+      "layout": "horizontal|vertical|circular",
+      "nodeSize": 40,
+      "edgeStyle": "curved|straight",
+      "colorScheme": "blue-green|red-blue|green-red",
+      "animationDuration": 500,
+      "interactive": true
+    },
+    "reactFlow": {
+      "nodeTypes": ["default", "algorithm-node"],
+      "edgeTypes": ["default", "animated"],
+      "layoutAlgorithm": "dagre|elk",
+      "zoomOnScroll": true,
+      "panOnDrag": true,
+      "interactive": true
+    },
+    "three": {
+      "cameraPosition": [5, 5, 5],
+      "controls": "orbit|trackball",
+      "lighting": "ambient,directional",
+      "materialType": "standard",
+      "geometryType": "box|sphere|cylinder",
+      "animationStyle": "smooth|energetic"
+    }
   },
-  "estimatedTime": "string - estimated time to understand (e.g., '15 min')",
-  "popularity": "number - popularity score (1-100)"
+
+  "metadata": {
+    "tags": ["algorithm", "data-structure", "optimization", "javascript", "problem-solving"],
+    "acceptanceRate": "55.2%",
+    "frequency": 85,
+    "similarProblems": [
+      "Similar LeetCode problems for practice",
+      "Related algorithm challenges"
+    ],
+    "difficultyBreakdown": {
+      "understanding": "Medium",
+      "implementation": "Easy",
+      "optimization": "Hard"
+    }
+  },
+
+  "educationalContent": {
+    "analogy": {
+      "title": "Real-world analogy for the algorithm",
+      "content": "Detailed explanation using everyday concepts with concrete examples",
+      "visualAid": "Description of how to visualize this analogy"
+    },
+    "keyInsights": [
+      "Critical learning points about the algorithm",
+      "Performance characteristics and trade-offs",
+      "When to use this algorithm vs alternatives",
+      "Common optimization patterns",
+      "Edge case handling strategies"
+    ],
+    "commonMistakes": [
+      "Typical errors developers make",
+      "Edge cases to watch out for",
+      "Performance pitfalls",
+      "Memory leak scenarios",
+      "Boundary condition errors"
+    ],
+    "optimizationTips": [
+      "How to improve performance",
+      "Memory optimization techniques",
+      "Best practices for implementation",
+      "Language-specific optimizations",
+      "Space-time trade-off considerations"
+    ],
+    "interviewTips": [
+      "Common interview questions about this algorithm",
+      "How to explain the solution to interviewers",
+      "Follow-up questions to prepare for",
+      "Red flags interviewers look for"
+    ]
+  },
+
+  "codeQuality": {
+    "readability": 8,
+    "efficiency": 9,
+    "maintainability": 7,
+    "documentation": 8,
+    "testability": 9,
+    "bestPractices": [
+      "Use descriptive variable names",
+      "Add proper error handling",
+      "Include input validation",
+      "Document edge cases",
+      "Consider performance implications"
+    ]
+  },
+
+  "testingScenarios": [
+    {
+      "scenario": "Basic functionality test",
+      "input": "Typical input case",
+      "expectedOutput": "Expected result",
+      "edgeCase": false
+    },
+    {
+      "scenario": "Edge case: Empty input",
+      "input": "Empty array/string/null",
+      "expectedOutput": "Appropriate handling",
+      "edgeCase": true
+    },
+    {
+      "scenario": "Edge case: Maximum input size",
+      "input": "Largest possible input",
+      "expectedOutput": "Handles large data efficiently",
+      "edgeCase": true
+    },
+    {
+      "scenario": "Edge case: Invalid input",
+      "input": "Wrong data type or format",
+      "expectedOutput": "Graceful error handling",
+      "edgeCase": true
+    }
+  ],
+
+  "performanceAnalysis": {
+    "bestCase": "O(1) - Constant time",
+    "averageCase": "O(n) - Linear time",
+    "worstCase": "O(n²) - Quadratic time",
+    "spaceComplexity": "O(1) - Constant space",
+    "bottlenecks": [
+      "Identify performance bottlenecks",
+      "Optimization opportunities",
+      "Memory usage patterns"
+    ],
+    "scalability": "How the algorithm scales with input size"
+  },
+
+  "relatedAlgorithms": [
+    {
+      "name": "Related Algorithm 1",
+      "similarity": "Shares similar concepts",
+      "whenToUse": "Alternative approach scenarios"
+    },
+    {
+      "name": "Related Algorithm 2",
+      "similarity": "Different but related problem",
+      "whenToUse": "Complementary solution approach"
+    }
+  ]
 }
 
-Focus on:
-1. THOROUGH CODE ANALYSIS - Read every line, understand the complete logic flow
-2. ACCURATE ALGORITHM IDENTIFICATION - Determine the exact algorithm type and category
-3. PRECISE COMPLEXITY ANALYSIS - Calculate O(n) notation based on actual code structure
-4. MEANINGFUL EXAMPLES - Create realistic test cases based on code behavior
-5. EDUCATIONAL CONTENT - Generate analogies, insights, and real-world applications
-6. VISUALIZATION DATA - Create step-by-step animation states with CONCRETE DATA:
-   - For Two Sum: Include actual array values, target number, indices
-   - For Shortest Palindrome: Include actual strings, current indices, slice comparisons
-   - For Container With Most Water: Include actual array heights, pointer positions
-   - For Reverse Integer: Include actual numbers, current digits, processing steps
-   - Use REAL VALUES not placeholders like "s" or "array"
-7. COMPREHENSIVE METADATA - Include relevant tags, difficulty, and frequency data
+ANIMATION DATA REQUIREMENTS:
+- Use CONCRETE VALUES: Real arrays, strings, numbers, objects
+- Include TIMING: duration, delay, easing for each step
+- Specify VISUALIZATION: D3 SVG, ReactFlow nodes, Three.js 3D
+- Add INTERACTION: Clickable elements, hover effects, step controls
+- Focus on EDUCATION: Clear progression, highlights, explanations
+
+For specific algorithm types:
+- ARRAY: Include actual array values, indices, comparisons
+- LINKED LIST: Include node values, next pointers, traversal steps
+- TREE: Include node values, left/right children, traversal order
+- GRAPH: Include nodes, edges, visited states, traversal paths
+- STRING: Include actual strings, indices, character comparisons
+- DP: Include table values, dependencies, optimal substructure
 
 CRITICAL REQUIREMENTS:
 - Generate CONCRETE animation data with actual values (numbers, strings, arrays)
@@ -399,9 +582,9 @@ function generateFallbackAnalysis(
     examples,
     problemStatement: generateProblemStatement(category, codeAnalysis),
     realWorldUse: generateRealWorldUse(category),
-    analogy: generateAnalogyForCategory(category),
-    keyInsights: generateKeyInsights(codeAnalysis, category),
-    realWorldApplications: generateRealWorldApplications(category),
+    analogy: generateAnalogyForCategory(category, algorithmSlug),
+    keyInsights: generateKeyInsights(codeAnalysis, category, algorithmSlug),
+    realWorldApplications: generateRealWorldApplications(category, algorithmSlug),
     engineeringLessons: generateEngineeringLessons(codeAnalysis, timeComplexity),
     implementations: generateImplementations(code, codeAnalysis),
     animationStates,
@@ -547,70 +730,317 @@ function generateSolutionExplanation(codeAnalysis: any, timeComplexity: string, 
   return explanation.trim()
 }
 
-function generateAnalogyForCategory(category: string) {
-  const analogies: Record<string, { title: string; content: string }> = {
+function generateAnalogyForCategory(category: string, algorithmName?: string) {
+  const analogies: Record<string, { title: string; content: string; visualAid: string }> = {
     'Array': {
-      title: 'Shopping List Organization',
-      content: 'Imagine organizing a shopping list where you need to find items that together cost exactly $10. You check each combination systematically, just like the algorithm searches through array elements to find the perfect pair.'
+      title: 'Two Sum: Finding Perfect Pizza Combinations',
+      content: 'Imagine you\'re at a pizza shop with a menu of prices: [2, 7, 11, 15]. You need to find two items that total exactly $9. You scan the menu once, remembering what you\'ve seen, and when you find an item that complements what you need (7 + 2 = 9), you\'ve found your perfect combination!',
+      visualAid: 'Picture a conveyor belt of pizza prices. As you walk along, you keep track of prices you\'ve seen. When you find one that matches what you need to reach your target, you grab both items.'
     },
     'String': {
-      title: 'Reading a Book Without Repeating Words',
-      content: 'Think of reading a book and trying to find the longest passage where no word repeats. You slide through the text, keeping track of words you\'ve seen, similar to how the algorithm maintains a window of unique characters.'
+      title: 'Palindrome: Mirror Reflection Puzzle',
+      content: 'Think of a word written on a mirror. When you read it backwards, it should look exactly the same as the original. Like checking if "racecar" reads the same forwards and backwards, the algorithm compares characters from both ends, moving towards the center like closing a zipper.',
+      visualAid: 'Visualize two people standing at opposite ends of a hallway with letters on the walls. They walk towards each other, comparing letters as they meet. If all pairs match, you have a perfect palindrome reflection.'
     },
     'Linked List': {
-      title: 'Train Car Rearrangement',
-      content: 'Imagine rearranging train cars on a track. Each car is connected to the next, and you need to reorganize them according to specific rules, just like manipulating nodes in a linked list.'
+      title: 'Partition List: Sorting Laundry by Color',
+      content: 'Imagine sorting a pile of laundry where you separate dark clothes from light ones. You go through each item one by one, deciding whether it goes in the "dark" pile or "light" pile based on a color threshold. The algorithm rearranges the linked list so all "smaller" values come before all "larger" values.',
+      visualAid: 'Picture two laundry baskets. As you pick up each piece of clothing, you check its color against your threshold. Dark clothes go in one basket, light clothes in another. Finally, you connect the baskets to create one organized pile.'
     },
     'Tree': {
-      title: 'Family Tree Exploration',
-      content: 'Exploring a family tree is like traversing a binary tree. You start from the root (oldest ancestor) and systematically visit each branch, collecting information as you go deeper.'
+      title: 'Binary Search Tree: Library Card Catalog',
+      content: 'A library card catalog is organized like a binary search tree. Books are arranged alphabetically, with each branch point helping you narrow down your search. "Is your book before or after \'M\'? Before \'G\' or after?" Each decision point guides you to your target book efficiently.',
+      visualAid: 'Imagine a tree where each branch point has a book title. Starting from the root, you compare your target book with the current node, going left if it comes earlier alphabetically, right if it comes later, until you find your book.'
+    },
+    'Dynamic Programming': {
+      title: 'Fibonacci: Rabbit Population Growth',
+      content: 'Consider how rabbits reproduce: each pair produces a new pair every month. The total number of pairs each month follows the Fibonacci sequence. Instead of recalculating each month\'s total, you build up from previous months, storing intermediate results to avoid redundant calculations.',
+      visualAid: 'Visualize a pyramid where each level represents a month. Instead of counting rabbits from scratch each month, you add the two previous levels together, creating an efficient calculation pyramid.'
+    },
+    'Graph': {
+      title: 'Social Network: Finding Mutual Friends',
+      content: 'Finding the shortest path between two people in a social network is like finding the most direct connection through mutual friends. You explore outward from person A, checking connections level by level, until you find the shortest path to person B.',
+      visualAid: 'Imagine concentric circles radiating out from person A. Each circle represents one degree of separation. You systematically explore each circle, marking visited people, until you reach person B through the shortest possible connection chain.'
+    }
+  }
+
+  // Get specific analogy based on algorithm name if available
+  if (algorithmName) {
+    const specificAnalogies: Record<string, { title: string; content: string; visualAid: string }> = {
+      'two-sum': {
+        title: 'Two Sum: Perfect Grocery Combination',
+        content: 'You\'re shopping with a $10 budget and need exactly two items that total $10. As you scan prices [2, 7, 11, 15], you remember what you\'ve seen. When you see $7 and know you saw $3 earlier (10-7=3), you\'ve found your perfect pair!',
+        visualAid: 'Picture a store shelf with price tags. You keep a mental note of prices you\'ve seen. When a new price complements a previous price to reach your target, you\'ve found the winning combination.'
+      },
+      'shortest-palindrome': {
+        title: 'Shortest Palindrome: Minimal Mirror Extension',
+        content: 'You have a word like "abc" and want to make it a palindrome by adding the fewest letters possible. You discover that adding "ba" at the front creates "bacabc", which reads the same forwards and backwards with minimal addition.',
+        visualAid: 'Imagine a word as a half-finished mirror. You need to add the fewest possible characters to the front so that when light reflects off it, the word appears complete and symmetrical.'
+      },
+      'container-with-most-water': {
+        title: 'Container With Most Water: Optimal Fence Posts',
+        content: 'You have fence posts of different heights and want to find two posts that, with the ground, would hold the most water. You use two pointers starting from the ends, moving the shorter pointer inward, calculating area at each step to find the maximum.',
+        visualAid: 'Visualize fence posts of heights [1,8,6,2,5,4,8,3,7]. Two pointers start at the ends. At each step, you calculate the water area between current pointers and move the shorter post inward, always seeking maximum area.'
+      }
+    }
+
+    if (specificAnalogies[algorithmName.toLowerCase()]) {
+      return specificAnalogies[algorithmName.toLowerCase()]
     }
   }
 
   return analogies[category] || {
-    title: 'Algorithm Visualization',
-    content: 'This algorithm processes data systematically to achieve the desired result, similar to how computers solve complex problems through step-by-step computation.'
+    title: 'Algorithm Problem Solving',
+    content: 'This algorithm systematically processes input data to achieve the desired computational result, breaking down complex problems into manageable, efficient steps that computers can execute reliably.',
+    visualAid: 'Think of it as a well-designed factory assembly line where each worker (algorithm step) has a specific role, and the final product emerges through coordinated, efficient operations.'
   }
 }
 
-function generateKeyInsights(codeAnalysis: any, category: string) {
-  const insights = [
-    `This is a ${category.toLowerCase()} algorithm that demonstrates efficient data structure usage`,
-    `Time complexity of ${codeAnalysis.hasNestedLoops ? 'O(n²)' : 'O(n)'} shows the importance of algorithm optimization`
-  ]
+function generateKeyInsights(codeAnalysis: any, category: string, algorithmName?: string) {
+  const insights = []
+
+  // Algorithm-specific insights
+  if (algorithmName?.toLowerCase().includes('two-sum')) {
+    insights.push('Hash Map optimization transforms O(n²) brute force into O(n) by trading space for time')
+    insights.push('Single-pass iteration with complement lookup is a classic example of the hash map pattern')
+    insights.push('Early termination when solution is found prevents unnecessary computation')
+  } else if (algorithmName?.toLowerCase().includes('palindrome')) {
+    insights.push('Two-pointer technique from opposite ends is perfect for symmetry checking')
+    insights.push('Character-by-character comparison reveals the essence of palindrome validation')
+    insights.push('Reversing strings is memory-intensive; in-place comparison is more efficient')
+  } else if (algorithmName?.toLowerCase().includes('linked-list')) {
+    insights.push('Pointer manipulation requires careful null checking to prevent runtime errors')
+    insights.push('Dummy node technique simplifies edge case handling in linked list operations')
+    insights.push('Multiple pointer variables (slow/fast) enable complex traversal patterns')
+  }
+
+  // Category-based insights
+  switch (category.toLowerCase()) {
+    case 'array':
+      insights.push('Arrays provide O(1) random access but require contiguous memory allocation')
+      insights.push('Index-based operations make arrays ideal for sequential processing')
+      insights.push('Consider space constraints when working with large arrays')
+      break
+
+    case 'string':
+      insights.push('String immutability affects performance in languages like Java and Python')
+      insights.push('Character arrays or StringBuilder provide better performance for modifications')
+      insights.push('ASCII vs Unicode considerations impact string processing complexity')
+      break
+
+    case 'linked list':
+      insights.push('Linked lists excel at insertions/deletions but have O(n) random access')
+      insights.push('Memory overhead of pointers can be significant for small data elements')
+      insights.push('Traversal requires careful null checking at each step')
+      break
+
+    case 'tree':
+      insights.push('Tree height determines operation complexity - balanced trees are crucial')
+      insights.push('Recursive algorithms are natural for tree traversal but watch stack depth')
+      insights.push('In-order traversal preserves sorted order in binary search trees')
+      break
+
+    case 'dynamic programming':
+      insights.push('Memoization prevents redundant calculations by storing intermediate results')
+      insights.push('State definition is critical - each state must uniquely identify a subproblem')
+      insights.push('Tabulation builds solutions bottom-up, often more cache-friendly than recursion')
+      break
+  }
+
+  // Code pattern insights
+  if (codeAnalysis.hasNestedLoops) {
+    insights.push('Nested loops multiply time complexity - consider hash maps or sorting optimizations')
+    insights.push('Break early from inner loops when possible to improve performance')
+  }
 
   if (codeAnalysis.hasRecursion) {
-    insights.push('Recursion provides an elegant solution but requires careful stack management')
+    insights.push('Recursion depth should be monitored to prevent stack overflow errors')
+    insights.push('Tail recursion can be optimized by compilers but isn\'t always guaranteed')
+    insights.push('Consider iterative solutions for production code with large inputs')
   }
 
   if (codeAnalysis.hasHashMap) {
-    insights.push('Hash maps provide O(1) lookup time, making them ideal for frequency counting and deduplication')
+    insights.push('Hash collisions can degrade O(1) to O(n) - choose hash functions carefully')
+    insights.push('Load factor affects hash table performance - monitor and resize when needed')
+    insights.push('Hash maps provide excellent average-case performance for most use cases')
   }
 
-  return insights
+  // Performance insights
+  const timeComplexity = codeAnalysis.hasNestedLoops ? 'O(n²)' : codeAnalysis.hasRecursion ? 'O(2^n)' : 'O(n)'
+  insights.push(`Time complexity of ${timeComplexity} demonstrates the importance of algorithmic efficiency`)
+  insights.push('Space-time trade-offs are fundamental to algorithm design and optimization')
+
+  return insights.length > 0 ? insights : [
+    'This algorithm demonstrates fundamental problem-solving techniques',
+    'Understanding time and space complexity is crucial for performance optimization',
+    'Edge cases and input validation are essential for robust implementations'
+  ]
 }
 
-function generateRealWorldApplications(category: string) {
+function generateRealWorldApplications(category: string, algorithmName?: string) {
+  // Algorithm-specific applications
+  if (algorithmName) {
+    const specificApps: Record<string, Array<{ domain: string; application: string; description: string }>> = {
+      'two-sum': [
+        {
+          domain: 'E-commerce',
+          application: 'Shopping Cart Optimization',
+          description: 'Finding two products that perfectly match a customer\'s budget for bundle deals'
+        },
+        {
+          domain: 'Finance',
+          application: 'Currency Exchange',
+          description: 'Finding currency pairs that sum to a target exchange rate for arbitrage opportunities'
+        },
+        {
+          domain: 'Gaming',
+          application: 'Resource Combination',
+          description: 'Combining game items or resources to achieve specific stat combinations'
+        }
+      ],
+      'shortest-palindrome': [
+        {
+          domain: 'Bioinformatics',
+          application: 'DNA Sequence Completion',
+          description: 'Finding minimal DNA sequence extensions to create palindromic structures'
+        },
+        {
+          domain: 'Text Editors',
+          application: 'Auto-complete Suggestions',
+          description: 'Suggesting minimal character additions to complete words or phrases'
+        },
+        {
+          domain: 'Data Compression',
+          application: 'Pattern Recognition',
+          description: 'Identifying and extending palindromic patterns in compressed data streams'
+        }
+      ],
+      'container-with-most-water': [
+        {
+          domain: 'Civil Engineering',
+          application: 'Reservoir Design',
+          description: 'Maximizing water storage capacity between terrain elevations'
+        },
+        {
+          domain: 'Financial Trading',
+          application: 'Portfolio Optimization',
+          description: 'Finding optimal asset combinations for maximum return within constraints'
+        },
+        {
+          domain: 'Urban Planning',
+          application: 'Building Placement',
+          description: 'Optimizing building heights and positions for maximum usable space'
+        }
+      ]
+    }
+
+    if (specificApps[algorithmName.toLowerCase()]) {
+      return specificApps[algorithmName.toLowerCase()]
+    }
+  }
+
+  // Category-based applications
   const applications: Record<string, Array<{ domain: string; application: string; description: string }>> = {
     'Array': [
       {
         domain: 'E-commerce',
         application: 'Product Recommendation',
-        description: 'Finding complementary products that fit a budget'
+        description: 'Finding complementary products that fit a budget constraint'
+      },
+      {
+        domain: 'Data Analysis',
+        application: 'Statistical Processing',
+        description: 'Computing moving averages and statistical measures on data arrays'
+      },
+      {
+        domain: 'Image Processing',
+        application: 'Pixel Manipulation',
+        description: 'Applying filters and transformations to image pixel arrays'
       }
     ],
     'String': [
       {
         domain: 'Text Processing',
         application: 'DNA Sequence Analysis',
-        description: 'Finding unique genetic sequences in biological data'
+        description: 'Finding unique genetic sequences and patterns in biological data'
+      },
+      {
+        domain: 'Search Engines',
+        application: 'Text Search Algorithms',
+        description: 'Implementing efficient string matching for web search functionality'
+      },
+      {
+        domain: 'Security',
+        application: 'Pattern Recognition',
+        description: 'Detecting malicious patterns in network traffic and system logs'
       }
     ],
     'Linked List': [
       {
         domain: 'Operating Systems',
         application: 'Memory Management',
-        description: 'Managing free memory blocks in dynamic allocation'
+        description: 'Managing free memory blocks in dynamic memory allocation systems'
+      },
+      {
+        domain: 'File Systems',
+        application: 'Directory Structures',
+        description: 'Implementing hierarchical file system navigation and organization'
+      },
+      {
+        domain: 'Network Routing',
+        application: 'Packet Queues',
+        description: 'Managing network packet queues with efficient insertion and removal'
+      }
+    ],
+    'Tree': [
+      {
+        domain: 'Database Systems',
+        application: 'Index Structures',
+        description: 'Implementing B-trees and balanced trees for database indexing'
+      },
+      {
+        domain: 'Artificial Intelligence',
+        application: 'Decision Trees',
+        description: 'Building decision tree models for machine learning classification'
+      },
+      {
+        domain: 'Computer Graphics',
+        application: 'Scene Graphs',
+        description: 'Organizing 3D scene objects in hierarchical tree structures'
+      }
+    ],
+    'Dynamic Programming': [
+      {
+        domain: 'Operations Research',
+        application: 'Resource Allocation',
+        description: 'Optimizing resource distribution with knapsack and scheduling problems'
+      },
+      {
+        domain: 'Bioinformatics',
+        application: 'Sequence Alignment',
+        description: 'Finding optimal alignments between DNA, RNA, or protein sequences'
+      },
+      {
+        domain: 'Speech Recognition',
+        application: 'Language Modeling',
+        description: 'Building probabilistic models for natural language processing'
+      }
+    ],
+    'Graph': [
+      {
+        domain: 'Social Networks',
+        application: 'Friend Recommendations',
+        description: 'Finding mutual connections and suggesting new relationships'
+      },
+      {
+        domain: 'Transportation',
+        application: 'Route Optimization',
+        description: 'Finding optimal paths in road networks and public transportation'
+      },
+      {
+        domain: 'Computer Networks',
+        application: 'Network Analysis',
+        description: 'Analyzing network topology and finding bottlenecks in data networks'
       }
     ]
   }
@@ -619,29 +1049,149 @@ function generateRealWorldApplications(category: string) {
     {
       domain: 'Software Development',
       application: 'Data Processing',
-      description: 'Efficient data manipulation and algorithm implementation'
+      description: 'Efficient data manipulation and algorithm implementation for general-purpose computing'
+    },
+    {
+      domain: 'System Design',
+      application: 'Performance Optimization',
+      description: 'Applying algorithmic principles to improve system efficiency and scalability'
+    },
+    {
+      domain: 'Problem Solving',
+      application: 'Computational Thinking',
+      description: 'Developing systematic approaches to complex computational challenges'
     }
   ]
 }
 
 function generateEngineeringLessons(codeAnalysis: any, timeComplexity: string) {
   const lessons = []
+  const algorithmType = codeAnalysis.algorithmType || 'unknown'
 
-  if (timeComplexity === 'O(n²)') {
+  // Algorithm-specific lessons based on type
+  switch (algorithmType.toLowerCase()) {
+    case 'array':
+    case 'two-sum':
+      lessons.push({
+        principle: 'Hash Map Optimization',
+        lesson: 'Using hash maps for O(1) lookups can reduce time complexity from O(n²) to O(n)',
+        application: 'Trade space for time - use HashMap/Set for frequency counting and fast lookups in array problems'
+      })
+      lessons.push({
+        principle: 'Two Pointer Technique',
+        lesson: 'Two pointers moving towards each other can solve many array problems efficiently',
+        application: 'Use for sorted arrays, palindrome checks, and problems requiring O(n) time with O(1) space'
+      })
+      break
+
+    case 'string':
+    case 'palindrome':
+      lessons.push({
+        principle: 'String Immutability',
+        lesson: 'Strings are immutable in most languages - consider character arrays for frequent modifications',
+        application: 'Use StringBuilder in Java, arrays in C++, or mutable strings where available for better performance'
+      })
+      lessons.push({
+        principle: 'Character Encoding',
+        lesson: 'Different character encodings can affect string comparison and manipulation',
+        application: 'Be aware of ASCII vs Unicode, case sensitivity, and special character handling'
+      })
+      break
+
+    case 'linked-list':
+      lessons.push({
+        principle: 'Pointer Management',
+        lesson: 'Careful pointer manipulation is crucial to avoid memory leaks and null pointer exceptions',
+        application: 'Always check for null pointers, use dummy nodes for edge cases, and properly update next pointers'
+      })
+      lessons.push({
+        principle: 'Fast/Slow Pointer Pattern',
+        lesson: 'Using two pointers moving at different speeds can detect cycles and find middle elements',
+        application: 'Perfect for cycle detection, finding middle of list, and handling circular linked lists'
+      })
+      break
+
+    case 'tree':
+      lessons.push({
+        principle: 'Recursive Tree Traversal',
+        lesson: 'Tree problems often lend themselves naturally to recursive solutions',
+        application: 'Consider recursion for inorder, preorder, postorder traversals, but watch for stack overflow'
+      })
+      lessons.push({
+        principle: 'Tree Balancing',
+        lesson: 'Balanced trees provide O(log n) operations, unbalanced trees can degrade to O(n)',
+        application: 'Use self-balancing trees (AVL, Red-Black) or ensure input is randomized for better performance'
+      })
+      break
+
+    case 'dynamic-programming':
+      lessons.push({
+        principle: 'Optimal Substructure',
+        lesson: 'Break problems into smaller subproblems and solve each only once',
+        application: 'Use memoization or tabulation to avoid redundant calculations and achieve optimal solutions'
+      })
+      lessons.push({
+        principle: 'State Definition',
+        lesson: 'Clearly define what each state in your DP table represents',
+        application: 'Choose meaningful state variables that capture all necessary information for the subproblem'
+      })
+      break
+  }
+
+  // Complexity-based lessons
+  if (timeComplexity === 'O(n²)' || timeComplexity === 'O(n³)') {
     lessons.push({
       principle: 'Algorithm Optimization',
-      lesson: 'Nested loops can lead to quadratic time complexity - consider optimization techniques',
-      application: 'Use hash maps, sorting, or divide-and-conquer approaches for better performance'
+      lesson: 'Nested loops create multiplicative time complexity - look for optimization opportunities',
+      application: 'Use hash maps for O(1) lookups, sorting for O(n log n), or divide-and-conquer for better performance'
     })
   }
 
-  if (codeAnalysis.hasRecursion) {
+  if (timeComplexity === 'O(2^n)') {
     lessons.push({
-      principle: 'Recursion Management',
-      lesson: 'Recursion simplifies code but can cause stack overflow for large inputs',
-      application: 'Consider iterative solutions or tail recursion for production systems'
+      principle: 'Exponential Complexity',
+      lesson: 'Exponential time complexity limits input size to ~20-30 elements',
+      application: 'Consider dynamic programming, greedy algorithms, or mathematical optimizations for larger inputs'
     })
   }
+
+  // Code pattern-based lessons
+  if (codeAnalysis.hasRecursion) {
+    lessons.push({
+      principle: 'Recursion Depth Management',
+      lesson: 'Deep recursion can cause stack overflow - monitor recursion depth',
+      application: 'Use iterative solutions for deep recursion, implement tail recursion where possible'
+    })
+  }
+
+  if (codeAnalysis.hasHashMap) {
+    lessons.push({
+      principle: 'Hash Function Quality',
+      lesson: 'Poor hash functions lead to collisions and degrade O(1) to O(n) performance',
+      application: 'Choose appropriate hash functions, handle collisions properly, and consider load factor'
+    })
+  }
+
+  if (codeAnalysis.hasSorting) {
+    lessons.push({
+      principle: 'Sorting Algorithm Selection',
+      lesson: 'Different sorting algorithms have different time/space trade-offs',
+      application: 'Use quicksort for general purpose, mergesort for stability, heapsort for space constraints'
+    })
+  }
+
+  // General engineering lessons
+  lessons.push({
+    principle: 'Edge Case Handling',
+    lesson: 'Always consider empty inputs, single elements, maximum values, and boundary conditions',
+    application: 'Write comprehensive tests covering edge cases and validate input constraints early'
+  })
+
+  lessons.push({
+    principle: 'Space-Time Trade-offs',
+    lesson: 'Often you can trade space for time or vice versa - choose based on constraints',
+    application: 'Use additional space for caching, precomputation, or hash tables when time is critical'
+  })
 
   return lessons.length > 0 ? lessons : [
     {
@@ -702,8 +1252,8 @@ function generateAnimationStates(category: string, codeAnalysis: any) {
     case 'Linked List':
       // Generate concrete linked list animation states
       states.push(
-        {
-          step: 1,
+    {
+      step: 1,
           title: 'Initialize Pointers',
           description: 'Create dummy nodes and set up traversal pointers',
           data: {
@@ -775,7 +1325,7 @@ function generateAnimationStates(category: string, codeAnalysis: any) {
           }
         },
         {
-          step: 2,
+      step: 2,
           title: 'Check Sum',
           description: 'Calculate sum of current pointers and compare with target',
           data: {
@@ -838,7 +1388,7 @@ function generateAnimationStates(category: string, codeAnalysis: any) {
           }
         },
         {
-          step: 3,
+    step: 3,
           title: 'Compare Prefixes',
           description: 'Check if string prefixes match reversed suffixes',
           data: {
@@ -886,7 +1436,7 @@ function generateAnimationStates(category: string, codeAnalysis: any) {
           data: { status: 'computing', result: 'pending' }
         },
         {
-          step: 4,
+    step: 4,
           title: 'Complete',
           description: 'Algorithm execution finished',
           data: { status: 'complete', result: 'computed' }

@@ -453,227 +453,6 @@ function TwoSumVisualization({ step, data }: { step: AnimationStep; data: any })
     )
   }
 
-  // String Palindrome Visualization Component
-  function StringPalindromeVisualization({ step, data }: { step: AnimationStep; data: any }) {
-    // Handle different data formats from AI-generated JSON
-    let originalString = ""
-    let reversedString = ""
-    let currentIndex = 0
-
-    if (data) {
-      if (typeof data.original === 'string') {
-        originalString = data.original
-      } else if (Array.isArray(data.original)) {
-        originalString = data.original.map((char: any) => char.char || char).join('')
-      }
-
-      if (typeof data.reversed === 'string') {
-        reversedString = data.reversed
-      } else if (Array.isArray(data.reversed)) {
-        reversedString = data.reversed.map((char: any) => char.char || char).join('')
-      }
-
-      currentIndex = data.currentIndex || data.i || 0
-    }
-
-    const originalChars = originalString.split('')
-    const reversedChars = reversedString.split('')
-
-    return (
-      <group>
-        {/* Algorithm title */}
-        <Html position={[0, 8, 0]} center>
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl font-bold text-xl">
-            🔄 Shortest Palindrome Algorithm
-          </div>
-        </Html>
-
-        {/* Step indicator */}
-        <Html position={[0, 6, 0]} center>
-          <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
-            <p className="text-gray-700 font-semibold">Step {step.step}: {step.title}</p>
-          </div>
-        </Html>
-
-        {/* Original string visualization */}
-        <group position={[-4, 2, 0]}>
-          <Html position={[0, 1, 0]} center>
-            <div className="bg-blue-100 px-3 py-1 rounded shadow font-semibold text-blue-800">
-              Original String
-            </div>
-          </Html>
-
-          {originalChars.map((char: string, index: number) => {
-            const isActive = index === currentIndex
-            const x = (index - originalChars.length / 2) * 1.2
-            const y = 0
-            const z = 0
-
-            return (
-              <group key={`orig-${index}`} position={[x, y, z]}>
-                <Box args={[0.8, 0.8, 0.2]}>
-                  <meshStandardMaterial
-                    color={isActive ? "#3b82f6" : "#ffffff"}
-                    emissive={isActive ? "#1d4ed8" : "#000000"}
-                    emissiveIntensity={isActive ? 0.2 : 0}
-                  />
-                </Box>
-
-                {/* Character label */}
-                <Html position={[0, 0, 0.15]} center>
-                  <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
-                    isActive ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {char}
-                  </div>
-                </Html>
-
-                {/* Index label */}
-                <Html position={[0, -0.6, 0.15]} center>
-                  <div className="text-xs text-gray-600 font-medium">[{index}]</div>
-                </Html>
-
-                {/* Active indicator */}
-                {isActive && (
-                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
-                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
-                  </Sphere>
-                )}
-              </group>
-            )
-          })}
-        </group>
-
-        {/* Reversed string visualization */}
-        <group position={[-4, -2, 0]}>
-          <Html position={[0, 1, 0]} center>
-            <div className="bg-green-100 px-3 py-1 rounded shadow font-semibold text-green-800">
-              Reversed String
-            </div>
-          </Html>
-
-          {reversedChars.map((char: string, index: number) => {
-            const isActive = index === currentIndex
-            const x = (index - reversedChars.length / 2) * 1.2
-            const y = 0
-            const z = 0
-
-            return (
-              <group key={`rev-${index}`} position={[x, y, z]}>
-                <Box args={[0.8, 0.8, 0.2]}>
-                  <meshStandardMaterial
-                    color={isActive ? "#10b981" : "#ffffff"}
-                    emissive={isActive ? "#047857" : "#000000"}
-                    emissiveIntensity={isActive ? 0.2 : 0}
-                  />
-                </Box>
-
-                {/* Character label */}
-                <Html position={[0, 0, 0.15]} center>
-                  <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
-                    isActive ? "bg-green-500 text-white" : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {char}
-                  </div>
-                </Html>
-
-                {/* Index label */}
-                <Html position={[0, -0.6, 0.15]} center>
-                  <div className="text-xs text-gray-600 font-medium">[{index}]</div>
-                </Html>
-
-                {/* Active indicator */}
-                {isActive && (
-                  <Sphere args={[0.1]} position={[0, 0.8, 0]}>
-                    <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
-                  </Sphere>
-                )}
-              </group>
-            )
-          })}
-        </group>
-
-        {/* Comparison visualization */}
-        {data?.s_slice && data?.reversed_slice && (
-          <group position={[4, 0, 0]}>
-            <Html position={[0, 2, 0]} center>
-              <div className="bg-purple-100 px-4 py-2 rounded-lg shadow-lg font-semibold text-purple-800">
-                String Comparison
-              </div>
-            </Html>
-
-            {/* S prefix */}
-            <Html position={[-2, 1, 0]} center>
-              <div className="bg-blue-50 px-3 py-2 rounded shadow font-medium text-blue-800">
-                S Prefix: "{data.s_slice}"
-              </div>
-            </Html>
-
-            {/* Reversed suffix */}
-            <Html position={[-2, -1, 0]} center>
-              <div className="bg-green-50 px-3 py-2 rounded shadow font-medium text-green-800">
-                Reversed Suffix: "{data.reversed_slice}"
-              </div>
-            </Html>
-
-            {/* Match result */}
-            <Html position={[2, 0, 0]} center>
-              <div className={`px-4 py-2 rounded-lg shadow-lg font-bold text-lg ${
-                data.s_slice === data.reversed_slice
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}>
-                {data.s_slice === data.reversed_slice ? "✅ MATCH!" : "❌ NO MATCH"}
-              </div>
-            </Html>
-          </group>
-        )}
-
-        {/* Result visualization */}
-        {data?.result && (
-          <group position={[0, -6, 0]}>
-            <Box args={[8, 1, 0.5]}>
-              <meshStandardMaterial color="#7c3aed" emissive="#5b21b6" emissiveIntensity={0.1} />
-            </Box>
-            <Html position={[0, 0, 0.3]} center>
-              <div className="bg-purple-100 px-6 py-3 rounded-xl shadow-xl font-bold text-purple-800 text-xl">
-                Shortest Palindrome: "{data.result}"
-              </div>
-            </Html>
-
-            {/* Celebration particles */}
-            <group>
-              {Array.from({ length: 10 }, (_, i) => (
-                <Sphere key={i} args={[0.05]} position={[
-                  (Math.random() - 0.5) * 6,
-                  Math.random() * 2,
-                  (Math.random() - 0.5) * 2
-                ]}>
-                  <meshStandardMaterial
-                    color={["#fbbf24", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"][i % 5]}
-                    emissive={["#f59e0b", "#d97706", "#047857", "#1d4ed8", "#6d28d9"][i % 5]}
-                    emissiveIntensity={0.5}
-                  />
-                </Sphere>
-              ))}
-            </group>
-          </group>
-        )}
-
-        {/* Processing indicator */}
-        <group position={[6, 4, 0]}>
-          <Sphere args={[0.3]}>
-            <meshStandardMaterial color="#f59e0b" emissive="#d97706" emissiveIntensity={0.6} />
-          </Sphere>
-          <Html position={[0, 0, 0.4]} center>
-            <div className="bg-orange-100 px-3 py-2 rounded-lg shadow-lg font-semibold text-orange-800">
-              Processing Length: {currentIndex}
-            </div>
-          </Html>
-        </group>
-      </group>
-    )
-  }
 
   // Target and complement visualization
   const TargetVisualization = () => (
@@ -897,6 +676,228 @@ function Particles() {
         sizeAttenuation
       />
     </points>
+  )
+}
+
+// String Palindrome Visualization Component
+function StringPalindromeVisualization({ step, data }: { step: AnimationStep; data: any }) {
+  // Handle different data formats from AI-generated JSON
+  let originalString = ""
+  let reversedString = ""
+  let currentIndex = 0
+
+  if (data) {
+    if (typeof data.original === 'string') {
+      originalString = data.original
+    } else if (Array.isArray(data.original)) {
+      originalString = data.original.map((char: any) => char.char || char).join('')
+    }
+
+    if (typeof data.reversed === 'string') {
+      reversedString = data.reversed
+    } else if (Array.isArray(data.reversed)) {
+      reversedString = data.reversed.map((char: any) => char.char || char).join('')
+    }
+
+    currentIndex = data.currentIndex || data.i || 0
+  }
+
+  const originalChars = originalString.split('')
+  const reversedChars = reversedString.split('')
+
+  return (
+    <group>
+      {/* Algorithm title */}
+      <Html position={[0, 8, 0]} center>
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl font-bold text-xl">
+          🔄 Shortest Palindrome Algorithm
+        </div>
+      </Html>
+
+      {/* Step indicator */}
+      <Html position={[0, 6, 0]} center>
+        <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
+          <p className="text-gray-700 font-semibold">Step {step.step}: {step.title}</p>
+        </div>
+      </Html>
+
+      {/* Original string visualization */}
+      <group position={[-4, 2, 0]}>
+        <Html position={[0, 1, 0]} center>
+          <div className="bg-blue-100 px-3 py-1 rounded shadow font-semibold text-blue-800">
+            Original String
+          </div>
+        </Html>
+
+        {originalChars.map((char: string, index: number) => {
+          const isActive = index === currentIndex
+          const x = (index - originalChars.length / 2) * 1.2
+          const y = 0
+          const z = 0
+
+          return (
+            <group key={`orig-${index}`} position={[x, y, z]}>
+              <Box args={[0.8, 0.8, 0.2]}>
+                <meshStandardMaterial
+                  color={isActive ? "#3b82f6" : "#ffffff"}
+                  emissive={isActive ? "#1d4ed8" : "#000000"}
+                  emissiveIntensity={isActive ? 0.2 : 0}
+                />
+              </Box>
+
+              {/* Character label */}
+              <Html position={[0, 0, 0.15]} center>
+                <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
+                  isActive ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-800"
+                }`}>
+                  {char}
+                </div>
+              </Html>
+
+              {/* Index label */}
+              <Html position={[0, -0.6, 0.15]} center>
+                <div className="text-xs text-gray-600 font-medium">[{index}]</div>
+              </Html>
+
+              {/* Active indicator */}
+              {isActive && (
+                <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                  <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                </Sphere>
+              )}
+            </group>
+          )
+        })}
+      </group>
+
+      {/* Reversed string visualization */}
+      <group position={[-4, -2, 0]}>
+        <Html position={[0, 1, 0]} center>
+          <div className="bg-green-100 px-3 py-1 rounded shadow font-semibold text-green-800">
+            Reversed String
+          </div>
+        </Html>
+
+        {reversedChars.map((char: string, index: number) => {
+          const isActive = index === currentIndex
+          const x = (index - reversedChars.length / 2) * 1.2
+          const y = 0
+          const z = 0
+
+          return (
+            <group key={`rev-${index}`} position={[x, y, z]}>
+              <Box args={[0.8, 0.8, 0.2]}>
+                <meshStandardMaterial
+                  color={isActive ? "#10b981" : "#ffffff"}
+                  emissive={isActive ? "#047857" : "#000000"}
+                  emissiveIntensity={isActive ? 0.2 : 0}
+                />
+              </Box>
+
+              {/* Character label */}
+              <Html position={[0, 0, 0.15]} center>
+                <div className={`px-2 py-1 rounded shadow font-bold text-lg ${
+                  isActive ? "bg-green-500 text-white" : "bg-gray-100 text-gray-800"
+                }`}>
+                  {char}
+                </div>
+              </Html>
+
+              {/* Index label */}
+              <Html position={[0, -0.6, 0.15]} center>
+                <div className="text-xs text-gray-600 font-medium">[{index}]</div>
+              </Html>
+
+              {/* Active indicator */}
+              {isActive && (
+                <Sphere args={[0.1]} position={[0, 0.8, 0]}>
+                  <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} />
+                </Sphere>
+              )}
+            </group>
+          )
+        })}
+      </group>
+
+      {/* Comparison visualization */}
+      {data?.s_slice && data?.reversed_slice && (
+        <group position={[4, 0, 0]}>
+          <Html position={[0, 2, 0]} center>
+            <div className="bg-purple-100 px-4 py-2 rounded-lg shadow-lg font-semibold text-purple-800">
+              String Comparison
+            </div>
+          </Html>
+
+          {/* S prefix */}
+          <Html position={[-2, 1, 0]} center>
+            <div className="bg-blue-50 px-3 py-2 rounded shadow font-medium text-blue-800">
+              S Prefix: "{data.s_slice}"
+            </div>
+          </Html>
+
+          {/* Reversed suffix */}
+          <Html position={[-2, -1, 0]} center>
+            <div className="bg-green-50 px-3 py-2 rounded shadow font-medium text-green-800">
+              Reversed Suffix: "{data.reversed_slice}"
+            </div>
+          </Html>
+
+          {/* Match result */}
+          <Html position={[2, 0, 0]} center>
+            <div className={`px-4 py-2 rounded-lg shadow-lg font-bold text-lg ${
+              data.s_slice === data.reversed_slice
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}>
+              {data.s_slice === data.reversed_slice ? "✅ MATCH!" : "❌ NO MATCH"}
+            </div>
+          </Html>
+        </group>
+      )}
+
+      {/* Result visualization */}
+      {data?.result && (
+        <group position={[0, -6, 0]}>
+          <Box args={[8, 1, 0.5]}>
+            <meshStandardMaterial color="#7c3aed" emissive="#5b21b6" emissiveIntensity={0.1} />
+          </Box>
+          <Html position={[0, 0, 0.3]} center>
+            <div className="bg-purple-100 px-6 py-3 rounded-xl shadow-xl font-bold text-purple-800 text-xl">
+              Shortest Palindrome: "{data.result}"
+            </div>
+          </Html>
+
+          {/* Celebration particles */}
+          <group>
+            {Array.from({ length: 10 }, (_, i) => (
+              <Sphere key={i} args={[0.05]} position={[
+                (Math.random() - 0.5) * 6,
+                Math.random() * 2,
+                (Math.random() - 0.5) * 2
+              ]}>
+                <meshStandardMaterial
+                  color={["#fbbf24", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"][i % 5]}
+                  emissive={["#f59e0b", "#d97706", "#047857", "#1d4ed8", "#6d28d9"][i % 5]}
+                  emissiveIntensity={0.5}
+                />
+              </Sphere>
+            ))}
+          </group>
+        </group>
+      )}
+
+      {/* Processing indicator */}
+      <group position={[6, 4, 0]}>
+        <Sphere args={[0.3]}>
+          <meshStandardMaterial color="#f59e0b" emissive="#d97706" emissiveIntensity={0.6} />
+        </Sphere>
+        <Html position={[0, 0, 0.4]} center>
+          <div className="bg-orange-100 px-3 py-2 rounded-lg shadow-lg font-semibold text-orange-800">
+            Processing Length: {currentIndex}
+          </div>
+        </Html>
+      </group>
+    </group>
   )
 }
 
