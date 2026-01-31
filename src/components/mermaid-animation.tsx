@@ -48,16 +48,22 @@ export function MermaidAnimation({
   const mermaidRef = useRef<HTMLDivElement>(null)
   const animationTimeoutRef = useRef<NodeJS.Timeout>()
 
-  // Enhanced Mermaid diagram generation with better visual storytelling
+  // 🎯 UNIVERSAL Mermaid diagram generation with auto-detection
   const generateMermaidDiagram = (step: AnimationStep, algorithmId: string) => {
     try {
-      if (algorithmId === "two-sum") {
-        return generateTwoSumDiagram(step)
-      }
-      if (algorithmId === "add-two-numbers") {
+      const data = step.data || {}
+
+      // Detect linked list algorithms
+      if (data.linkedList || data.head || data.nodes || algorithmId.includes("linked")) {
         return generateAddTwoNumbersDiagram(step)
       }
-      // Add more algorithms here
+
+      // Detect array algorithms
+      if (data.array && Array.isArray(data.array)) {
+        return generateTwoSumDiagram(step)
+      }
+
+      // Default fallback
       return generateDefaultDiagram(step)
     } catch (err) {
       console.error("[v0] Mermaid diagram generation error:", err)

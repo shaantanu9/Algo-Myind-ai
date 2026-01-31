@@ -259,10 +259,12 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
   }
 
   const handleStepChange = (step: number) => {
-    setCurrentStep(Math.max(0, Math.min(step, algorithm.animationStates.length - 1)))
+    if (algorithm.animationStates?.length) {
+      setCurrentStep(Math.max(0, Math.min(step, algorithm.animationStates.length - 1)))
+    }
   }
 
-  const progress = ((currentStep + 1) / algorithm.animationStates.length) * 100
+  const progress = algorithm.animationStates?.length ? ((currentStep + 1) / algorithm.animationStates.length) * 100 : 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -369,12 +371,12 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                 </div>
                 <Progress value={progress} className="w-full" />
                 <p className="text-sm text-muted-foreground">
-                  Step {currentStep + 1} of {algorithm.animationStates.length}:{" "}
-                  {algorithm.animationStates[currentStep]?.title}
+                  Step {currentStep + 1} of {algorithm.animationStates?.length || 0}:{" "}
+                  {algorithm.animationStates?.[currentStep]?.title || "No animation steps available"}
                 </p>
               </CardHeader>
               <CardContent>
-                {animationType === "mermaid" && (
+                {animationType === "mermaid" && algorithm.animationStates && (
                   <MermaidAnimation
                     steps={algorithm.animationStates}
                     currentStep={currentStep}
@@ -385,7 +387,7 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                     algorithmId={algorithm.id}
                   />
                 )}
-                {animationType === "flow" && (
+                {animationType === "flow" && algorithm.animationStates && (
                   <ReactFlowAnimation
                     steps={algorithm.animationStates}
                     currentStep={currentStep}
@@ -405,18 +407,20 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                       onStepChange={handleStepChange}
                     />
                   ) : (
-                    <D3Animation
-                      steps={algorithm.animationStates}
-                      currentStep={currentStep}
-                      isPlaying={isPlaying}
-                      onStepChange={handleStepChange}
-                      onPlayPause={handlePlayPause}
-                      onReset={handleReset}
-                      algorithmId={algorithm.id}
-                    />
+                    algorithm.animationStates && (
+                      <D3Animation
+                        steps={algorithm.animationStates}
+                        currentStep={currentStep}
+                        isPlaying={isPlaying}
+                        onStepChange={handleStepChange}
+                        onPlayPause={handlePlayPause}
+                        onReset={handleReset}
+                        algorithmId={algorithm.id}
+                      />
+                    )
                   )
                 )}
-                {animationType === "three" && (
+                {animationType === "three" && algorithm.animationStates && (
                   <ThreeAnimation
                     steps={algorithm.animationStates}
                     currentStep={currentStep}
@@ -461,7 +465,7 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                     <CardTitle>Examples</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {algorithm.examples.map((example, index) => (
+                    {algorithm.examples?.map((example, index) => (
                       <div key={index} className="border rounded-lg p-4 bg-muted/30">
                         <div className="space-y-2 text-sm">
                           <div>
@@ -489,7 +493,7 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      {algorithm.keyInsights.map((insight, index) => (
+                      {algorithm.keyInsights?.map((insight, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <div className="w-2 h-2 bg-secondary rounded-full mt-2 flex-shrink-0" />
                           <span className="text-sm leading-relaxed">{insight}</span>
@@ -596,17 +600,17 @@ export function AlgorithmDetailPage({ algorithm: serverAlgorithm }: AlgorithmDet
                   {algorithm.implementations?.bruteForce && (
                     <Card>
                       <CardHeader>
-                        <CardTitle>{algorithm.implementations.bruteForce?.title || 'Brute Force Approach'}</CardTitle>
+                        <CardTitle>{algorithm.implementations?.bruteForce?.title || 'Brute Force Approach'}</CardTitle>
                         <CardDescription>
-                          Time: {algorithm.implementations.bruteForce?.timeComplexity || 'O(n²)'} • Space:{" "}
-                          {algorithm.implementations.bruteForce?.spaceComplexity || 'O(1)'}
+                          Time: {algorithm.implementations?.bruteForce?.timeComplexity || 'O(n²)'} • Space:{" "}
+                          {algorithm.implementations?.bruteForce?.spaceComplexity || 'O(1)'}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                       <div className="relative">
                         <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm font-mono leading-relaxed border border-slate-700">
                           <code className="language-javascript">
-                            {algorithm.implementations.bruteForce?.code || `// Brute force implementation not available
+                            {algorithm.implementations?.bruteForce?.code || `// Brute force implementation not available
 
 function bruteForceSolution(input) {
   // TODO: Implement brute force approach
@@ -617,18 +621,18 @@ function bruteForceSolution(input) {
                           </code>
                         </pre>
                         <button
-                          onClick={() => navigator.clipboard.writeText(algorithm.implementations.bruteForce?.code || '')}
+                          onClick={() => navigator.clipboard.writeText(algorithm.implementations?.bruteForce?.code || '')}
                           className="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs transition-colors"
                         >
                           📋 Copy
                         </button>
                       </div>
-                      {algorithm.implementations.bruteForce?.explanation && (
+                      {algorithm.implementations?.bruteForce?.explanation && (
                         <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                           <p className="text-sm text-blue-800 dark:text-blue-200">
                             <strong>💡 Explanation:</strong> {algorithm.implementations.bruteForce.explanation}
                           </p>
-                          {algorithm.implementations.bruteForce.whenToUse && (
+                          {algorithm.implementations?.bruteForce?.whenToUse && (
                             <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
                               <strong>🎯 When to use:</strong> {algorithm.implementations.bruteForce.whenToUse}
                             </p>
@@ -699,7 +703,7 @@ function optimizedSolution(input) {
 
               <TabsContent value="applications" className="space-y-6">
                 <div className="grid gap-4">
-                  {algorithm.realWorldApplications.map((app, index) => (
+                  {algorithm.realWorldApplications?.map((app, index) => (
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle className="text-lg">{app.domain}</CardTitle>
@@ -897,7 +901,7 @@ function optimizedSolution(input) {
 
               <TabsContent value="engineering" className="space-y-6">
                 <div className="grid gap-4">
-                  {algorithm.engineeringLessons.map((lesson, index) => (
+                  {algorithm.engineeringLessons?.map((lesson, index) => (
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">

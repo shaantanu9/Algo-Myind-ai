@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
+import "../styles/animations.css"
 
 export const metadata: Metadata = {
   title: "DSA Learning Hub - Master Algorithms with Interactive Animations",

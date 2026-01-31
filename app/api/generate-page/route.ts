@@ -39,8 +39,18 @@ export async function POST(request: NextRequest) {
     const frequency = metadata?.frequency || 0
 
     // Generate the page route with proper ID format
-    const routeSlug = algorithmName || `problem-${problemId}`
-    const algorithmId = algorithmData.id || routeSlug // Use existing ID or generate from routeSlug
+    // Priority: use existing ID, then algorithmName, then generate from problemId or timestamp
+    const algorithmId = algorithmData.id || algorithmData.algorithmName || algorithmName || (problemId ? `problem-${problemId}` : `algorithm-${Date.now()}`)
+    const routeSlug = algorithmId
+    
+    console.log('🔍 Page Generation Debug:')
+    console.log('  - algorithmData.id:', algorithmData.id)
+    console.log('  - algorithmData.algorithmName:', algorithmData.algorithmName)
+    console.log('  - algorithmName:', algorithmName)
+    console.log('  - problemId:', problemId)
+    console.log('  - Final routeSlug:', routeSlug)
+    console.log('  - Preview URL will be:', `/algorithm/${routeSlug}`)
+    
     const pagePath = path.join(process.cwd(), 'app', 'algorithm', routeSlug, 'page.tsx')
     const layoutPath = path.join(process.cwd(), 'app', 'algorithm', routeSlug, 'layout.tsx')
 
@@ -50,29 +60,21 @@ export async function POST(request: NextRequest) {
       fs.mkdirSync(dirPath, { recursive: true })
     }
 
-    // Generate the page content
-    const pageContent = generatePageContent({
-      algorithmName: algorithmId, // Use consistent ID
-      problemId,
-      title,
-      description,
-      difficulty,
-      category,
-      timeComplexity,
-      spaceComplexity,
-      examples,
-      problemStatement,
-      realWorldUse,
-      analogy,
-      keyInsights,
-      realWorldApplications,
-      engineeringLessons,
-      implementations,
-      animationStates,
-      animation,
-      metadata,
-      routeSlug
-    })
+    // Generate a DYNAMIC page that loads from markdown (not static embedded data)
+    const pageContent = `import { AlgorithmDetailPage } from "@/components/algorithm-detail-page"
+import { notFound } from "next/navigation"
+import { markdownAlgorithmLoader } from "@/lib/markdown-algorithm-loader"
+
+export default function Page() {
+  const algorithm = markdownAlgorithmLoader.loadAlgorithm("${algorithmId}")
+  
+  if (!algorithm) {
+    notFound()
+  }
+
+  return <AlgorithmDetailPage algorithm={algorithm} />
+}
+`
 
     // Generate the layout content
     const layoutContent = generateLayoutContent({
@@ -248,14 +250,18 @@ export default function ${algorithmName.replace(/[^a-zA-Z0-9]/g, '')}Page() {
 function generateLayoutContent(data: any) {
   const { title, description, metadata } = data
   const tags = metadata?.tags || []
+  
+  // Safely handle title and description
+  const safeTitle = (title || 'Algorithm').replace(/"/g, '\\"').replace(/\n/g, ' ')
+  const safeDescription = (description || 'Algorithm visualization').replace(/"/g, '\\"').replace(/\n/g, ' ')
 
   return `export const metadata = {
-  title: "${title.replace(/"/g, '\\"')} - Algorithm Visualization",
-  description: "${description.replace(/"/g, '\\"')}",
+  title: "${safeTitle} - Algorithm Visualization",
+  description: "${safeDescription}",
   keywords: ["${tags.join('", "')}", "algorithm", "visualization", "javascript"],
   openGraph: {
-    title: "${title.replace(/"/g, '\\"')} - Algorithm Visualization",
-    description: "${description.replace(/"/g, '\\"')}",
+    title: "${safeTitle} - Algorithm Visualization",
+    description: "${safeDescription}",
     type: "website",
   },
 }

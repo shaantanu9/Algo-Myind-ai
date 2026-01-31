@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!file.name.endsWith('.js') || file.type !== 'text/javascript') {
+    if (!file.name.endsWith('.js') && !file.name.endsWith('.javascript')) {
       return NextResponse.json({ error: 'Invalid file type. Please upload a JavaScript file.' }, { status: 400 })
     }
 

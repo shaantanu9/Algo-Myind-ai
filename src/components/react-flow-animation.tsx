@@ -105,22 +105,39 @@ export function ReactFlowAnimation({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   const generateReactFlowData = useCallback((step: AnimationStep, algorithmId: string) => {
-    // Enhanced algorithm detection for AI-generated JSON
-    if (algorithmId === "two-sum" || (step.data?.array && step.data?.target)) {
-      return generateTwoSumFlow(step)
-    }
-    if (algorithmId === "container-with-most-water" || step.data?.array?.length > 0) {
-      return generateContainerWithMostWaterFlow(step)
-    }
-    if (algorithmId === "shortest-palindrome" || step.data?.original !== undefined) {
-      return generateStringManipulationFlow(step)
-    }
-    if (algorithmId === "reverse-integer" || step.data?.original !== undefined) {
-      return generateMathFlow(step)
-    }
-    if (algorithmId.includes("partition") || step.data?.lessHead || step.data?.greaterHead) {
+    // 🎯 UNIVERSAL DETECTION: Auto-detect data structure from step.data
+    const data = step.data || {}
+
+    // Detect linked list algorithms
+    if (data.linkedList || data.lessHead || data.greaterHead || data.head || data.nodes) {
       return generateLinkedListFlow(step)
     }
+
+    // Detect array-based algorithms
+    if (data.array && Array.isArray(data.array)) {
+      // Check if it's a two-pointer problem
+      if (data.target !== undefined || data.hashMap) {
+        return generateTwoSumFlow(step)
+      }
+      // Check if it's a container/area problem
+      if (data.left !== undefined && data.right !== undefined) {
+        return generateContainerWithMostWaterFlow(step)
+      }
+      // Default array visualization
+      return generateDefaultFlow(step)
+    }
+
+    // Detect string manipulation
+    if (data.string || data.original || data.text) {
+      return generateStringManipulationFlow(step)
+    }
+
+    // Detect number/math operations
+    if (typeof data.value === 'number' || data.digit !== undefined) {
+      return generateMathFlow(step)
+    }
+
+    // Default fallback
     return generateDefaultFlow(step)
   }, [])
 

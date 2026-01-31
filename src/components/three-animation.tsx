@@ -85,10 +85,27 @@ interface ThreeAnimationProps {
 // Two Sum 3D Visualization Component
 function TwoSumVisualization({ step, data }: { step: AnimationStep; data: any }) {
   const groupRef = useRef<THREE.Group>(null)
-  const { array, target, currentIndex, hashMap, complement, found, result } = data
+
+  // Handle different data structures from markdown vs hardcoded data
+  const array = data.array || (data.elements ? data.elements.map((el: any) => el.value) : [])
+  const target = data.target || 0
+  const currentIndex = data.currentIndex || -1
+  const hashMap = data.hashMap || {}
+  const complement = data.complement
+  const found = data.found
+  const result = data.result
 
   // Enhanced Array visualization as 3D boxes with advanced materials
   const ArrayBoxes = () => {
+    if (!array || array.length === 0) {
+      return (
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="#6b7280" />
+        </mesh>
+      )
+    }
+
     return (
       <>
         {array.map((value: number, index: number) => {
@@ -932,19 +949,30 @@ export function ThreeAnimation({
   const currentStepData = steps[currentStep]
 
   const renderVisualization = () => {
-    // Enhanced algorithm detection for AI-generated JSON
-    if (algorithmId === "two-sum" || (steps.length > 0 && steps[0].data?.array)) {
-      return <TwoSumVisualization step={currentStepData} data={currentStepData.data} />
+    // 🎯 UNIVERSAL DETECTION: Auto-detect data structure from step.data
+    const data = currentStepData.data || {}
+
+    // Detect linked list algorithms
+    if (data.linkedList || data.lessHead || data.greaterHead || data.head || data.nodes) {
+      return <LinkedListVisualization step={currentStepData} data={data} />
     }
-    if (algorithmId === "shortest-palindrome" || (steps.length > 0 && steps[0].data?.original !== undefined)) {
-      return <StringPalindromeVisualization step={currentStepData} data={currentStepData.data} />
+
+    // Detect array algorithms
+    if (data.array && Array.isArray(data.array)) {
+      return <TwoSumVisualization step={currentStepData} data={data} />
     }
-    if (algorithmId === "reverse-integer" || (steps.length > 0 && steps[0].data?.original !== undefined)) {
-      return <MathVisualization step={currentStepData} data={currentStepData.data} />
+
+    // Detect string manipulation
+    if (data.string || data.original || data.text) {
+      return <StringPalindromeVisualization step={currentStepData} data={data} />
     }
-    if (algorithmId.includes("partition") || (steps.length > 0 && steps[0].data?.lessHead)) {
-      return <LinkedListVisualization step={currentStepData} data={currentStepData.data} />
+
+    // Detect number/math operations
+    if (typeof data.value === 'number' || data.digit !== undefined) {
+      return <MathVisualization step={currentStepData} data={data} />
     }
+
+    // Default generic visualization
     return <GenericVisualization step={currentStepData} />
   }
 

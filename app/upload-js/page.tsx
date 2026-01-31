@@ -63,6 +63,7 @@ export default function UploadJSPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -77,6 +78,7 @@ export default function UploadJSPage() {
       setError(null)
       setAnalysisResult(null)
       setPreviewUrl(null)
+      setShowSuccessMessage(false)
     }
   }
 
@@ -125,6 +127,11 @@ export default function UploadJSPage() {
       }
 
       const analysisData = await analysisResponse.json()
+      
+      // Extract algorithm ID from the analysis response
+      const algorithmId = analysisData.algorithmSlug || analysisData.algorithmId || uploadResult.algorithmSlug || `problem-${analysisData.problemId || Date.now()}`
+      console.log('📋 Algorithm ID:', algorithmId)
+      
       setProgress(60)
 
       // Step 3: Enhance algorithm data with concrete animation data
@@ -167,8 +174,11 @@ export default function UploadJSPage() {
         console.log(`   • ${anim.library.toUpperCase()}: ${anim.frames.length} frames, ${anim.atoms.length} atoms`)
       })
 
-      // Add generated animations to the algorithm data
+      // Add generated animations and ID to the algorithm data
       enhancedData.generatedAnimations = generatedAnimations
+      enhancedData.id = algorithmId
+      enhancedData.algorithmName = algorithmId
+      enhancedData.problemId = analysisData.problemId || uploadResult.problemId
 
       setProgress(90)
 
@@ -192,6 +202,7 @@ export default function UploadJSPage() {
       setProgress(100)
       setAnalysisResult(enhancedData)
       setPreviewUrl(pageResult.previewUrl)
+      setShowSuccessMessage(true)
 
       // Save algorithm data to localStorage for persistence
       try {
@@ -231,6 +242,18 @@ export default function UploadJSPage() {
     }
   }
 
+  const handleCopyLink = async () => {
+    if (previewUrl) {
+      try {
+        await navigator.clipboard.writeText(`${window.location.origin}${previewUrl}`)
+        // You could add a toast notification here
+        console.log('Link copied to clipboard!')
+      } catch (err) {
+        console.error('Failed to copy link:', err)
+      }
+    }
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
@@ -242,6 +265,48 @@ export default function UploadJSPage() {
           interactive visualization page with animations, explanations, and step-by-step breakdowns.
         </p>
       </div>
+
+      {/* Success Message */}
+      {showSuccessMessage && previewUrl && (
+        <div className="mb-6">
+          <Alert className="border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <strong>🎉 Success!</strong> Your algorithm page has been generated and is ready to view.
+                </div>
+                <div className="flex gap-2 ml-4">
+                  <Button 
+                    onClick={handleViewPage} 
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View Page
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleCopyLink}
+                    title="Copy link to clipboard"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Copy Link
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowSuccessMessage(false)}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upload Section */}
@@ -481,15 +546,59 @@ export default function UploadJSPage() {
                     <div className="text-center space-y-4">
                       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg">
                         <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                        <h4 className="font-semibold text-lg mb-2">Page Generated Successfully!</h4>
-                        <p className="text-gray-600 mb-4">
+                        <h4 className="font-semibold text-lg mb-2">🎉 Page Generated Successfully!</h4>
+                        <p className="text-gray-600 mb-6">
                           Your algorithm page is ready with interactive animations and detailed explanations.
                         </p>
+                        
                         {previewUrl && (
-                          <Button onClick={handleViewPage} className="bg-gradient-to-r from-green-600 to-blue-600">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Algorithm Page
-                          </Button>
+                          <div className="space-y-3">
+                            <Button 
+                              onClick={handleViewPage} 
+                              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 text-lg"
+                            >
+                              <Eye className="h-5 w-5 mr-2" />
+                              View Algorithm Page
+                            </Button>
+                            
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => router.push('/')}
+                                className="flex items-center gap-2"
+                              >
+                                <Upload className="h-4 w-4" />
+                                Upload Another File
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => router.push('/')}
+                                className="flex items-center gap-2"
+                              >
+                                <Brain className="h-4 w-4" />
+                                Browse All Algorithms
+                              </Button>
+                            </div>
+                            
+                            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm text-blue-700">
+                                  <strong>Direct Link:</strong> 
+                                  <code className="ml-2 px-2 py-1 bg-blue-100 rounded text-xs">
+                                    {previewUrl}
+                                  </code>
+                                </p>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={handleCopyLink}
+                                  className="text-blue-600 hover:text-blue-700"
+                                >
+                                  <FileText className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
 
